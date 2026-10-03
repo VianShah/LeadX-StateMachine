@@ -30,14 +30,28 @@ router.post('/runs', (req, res) => {
   }
 });
 
+// Data Intelligence + Strategy + Fulfilment content for this run's leads and voice.
+router.get('/runs/:id/pipeline', (req, res) => {
+  const run = runner.getRun(req.params.id);
+  if (!run) return res.status(404).json({ error: 'run_not_found' });
+  res.json(runner.pipelineView(run));
+});
+
+router.post('/runs/:id/launch', (req, res) => {
+  const run = runner.getRun(req.params.id);
+  if (!run) return res.status(404).json({ error: 'run_not_found' });
+  if (!runner.launchRun(run)) return res.status(409).json({ error: 'already_launched' });
+  res.json(runner.snapshot(run));
+});
+
 router.get('/runs/:id', (req, res) => {
   const run = runner.getRun(req.params.id);
   if (!run) return res.status(404).json({ error: 'run_not_found' });
   res.json(runner.snapshot(run));
 });
 
-// Server-sent events: one `snapshot` on connect, then a message per
-// transition and a final `run_complete`.
+// Server-sent events: one `snapshot` on connect, then `run_started`, a message
+// per transition, and a final `run_complete`.
 router.get('/runs/:id/events', (req, res) => {
   const run = runner.getRun(req.params.id);
   if (!run) return res.status(404).json({ error: 'run_not_found' });

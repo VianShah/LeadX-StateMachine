@@ -58,3 +58,36 @@ test('language match raises high-intent probability', () => {
   const unmatched = sm.intentMix(lead, voices.find((v) => v.id === 'ria')).mix.high;
   assert.ok(matched > unmatched);
 });
+
+test('friction only occurs on the in-app steps, and a drop always ends in lost', () => {
+  const stepsSeen = new Set();
+  let recovered = 0, dropped = 0;
+  for (const voice of voices) {
+    for (const lead of generateLeads(60, 'fr')) {
+      let state = 'queued', attempt = 0;
+      for (let i = 0; i < 40; i++) {
+        const step = sm.decide(state, { lead, voice, seed: 'fr', attempt });
+        if (!step) break;
+        if (step.friction) {
+          stepsSeen.add(step.friction.step);
+          assert.ok(['inapp_handoff', 'kyc_check', 'mandate_setup'].includes(state));
+          if (step.friction.outcome === 'dropped') { dropped++; assert.equal(step.to, 'lost'); } else recovered++;
+        }
+        if (step.to === 'dialing') attempt += 1;
+        state = step.to;
+      }
+    }
+  }
+  assert.deepEqual([...stepsSeen].sort(), ['kyc', 'mandate', 'open_link']);
+  assert.ok(recovered > dropped, 'the built-in fix should recover more than it loses');
+});
+
+test('won is only reachable through the full fulfilment chain', () => {
+  for (const lead of generateLeads(60, 'won')) {
+    const { path, end } = walk(lead, voices[1], 'won');
+    if (end === 'won') {
+      const i = path.indexOf('inapp_handoff');
+      assert.deepEqual(path.slice(i, i + 4), ['inapp_handoff', 'kyc_check', 'mandate_setup', 'won']);
+    }
+  }
+});

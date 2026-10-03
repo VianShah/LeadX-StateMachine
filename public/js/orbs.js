@@ -132,7 +132,7 @@ document.addEventListener('keydown', (e) => {
 
 document.getElementById('btnOrbNext').addEventListener('click', () => {
   stopOrbAudio();
-  startRun();
+  startPipeline();
 });
 
 initOrbs().then(() => renderOrbCarousel(false));

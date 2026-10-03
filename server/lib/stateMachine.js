@@ -32,9 +32,11 @@ const STATES = {
   nurture_sms:   { label: 'Nurture · SMS',    kind: 'action',   color: '#8C93E8', nba: 'Low-key SMS nurture after a cooling-off period' },
   nurture_wa:    { label: 'Nurture · WhatsApp', kind: 'action', color: '#8C93E8', nba: 'One soft WhatsApp check-in, then close the cycle' },
   wa_confirm:    { label: 'WhatsApp confirm', kind: 'action',   color: '#4FADA0', nba: 'Confirmation message with the application link' },
-  inapp_handoff: { label: 'In-app handoff',   kind: 'action',   color: '#C9A24B', nba: 'LeadX+ agent guiding the application in-app' },
+  inapp_handoff: { label: 'In-app handoff',   kind: 'action',   color: '#C9A24B', nba: 'LeadX+ agent guiding the application in-app — form auto-filled from AA + CRM' },
+  kyc_check:     { label: 'KYC verification', kind: 'action',   color: '#C9A24B', nba: 'Agent briefs the customer before KYC so the environment is ready' },
+  mandate_setup: { label: 'Mandate setup',    kind: 'action',   color: '#C9A24B', nba: 'Auto-pay mandate with retry / switch-UPI / finish-later fallbacks — never a hard restart' },
 
-  won:           { label: 'Won',              kind: 'terminal', color: '#34d399', nba: 'Converted — application completed' },
+  won:           { label: 'Won',              kind: 'terminal', color: '#34d399', nba: 'Converted — application and mandate completed' },
   lost:          { label: 'Lost',             kind: 'terminal', color: '#f56565', nba: 'Cycle closed without conversion' },
 };
 
@@ -58,11 +60,15 @@ const EDGES = [
   { from: 'nurture_sms',   to: 'nurture_wa',    event: 'no response' },
   { from: 'nurture_wa',    to: 'lost',          event: 'cycle exhausted' },
   { from: 'medium',        to: 'wa_confirm',    event: 'confirm on WhatsApp' },
-  { from: 'wa_confirm',    to: 'won',           event: 'confirmed' },
+  { from: 'wa_confirm',    to: 'inapp_handoff', event: 'confirmed, hand to LeadX+' },
   { from: 'wa_confirm',    to: 'lost',          event: 'no reply' },
   { from: 'high',          to: 'inapp_handoff', event: 'hand to LeadX+' },
-  { from: 'inapp_handoff', to: 'won',           event: 'application completed' },
-  { from: 'inapp_handoff', to: 'lost',          event: 'dropped off in-app' },
+  { from: 'inapp_handoff', to: 'kyc_check',     event: 'form completed' },
+  { from: 'inapp_handoff', to: 'lost',          event: 'abandoned the form' },
+  { from: 'kyc_check',     to: 'mandate_setup', event: 'KYC verified' },
+  { from: 'kyc_check',     to: 'lost',          event: 'KYC failed' },
+  { from: 'mandate_setup', to: 'won',           event: 'mandate set' },
+  { from: 'mandate_setup', to: 'lost',          event: 'mandate dropped' },
 ];
 
 const SENTIMENT = {
@@ -80,8 +86,16 @@ const BAND_MIX = {
 
 const OPT_OUT_RATE = 0.06;
 const WRONG_PARTY_RATE = 0.06;
-const WA_CONFIRM_WIN_RATE = 0.8;
-const INAPP_WIN_RATE = 0.88;
+const WA_CONFIRM_RATE = 0.8;
+// Fulfilment: each in-app step hits friction some of the time; the built-in
+// fix recovers most of those, and the rest drop off (see fulfilment.js).
+const FRICTION_RATE = 0.3;
+const FIX_RECOVERY_RATE = 0.8;
+
+function friction(rand, step) {
+  if (rand() >= FRICTION_RATE) return null;
+  return { step, outcome: rand() < FIX_RECOVERY_RATE ? 'recovered' : 'dropped' };
+}
 
 /** Probability of each intent level for this lead + voice, summing to 1. */
 function intentMix(lead, voice) {
@@ -202,10 +216,10 @@ function decide(state, ctx) {
         action: 'Sent a confirmation message with the application link', signal: 'Delivered and read',
         insight: 'Engaged with the reminder' };
     case 'wa_confirm':
-      if (rand() < WA_CONFIRM_WIN_RATE) {
-        return { to: 'won', event: 'confirmed', channel: 'In-app', weight: 1.2,
-          action: 'Confirmed on WhatsApp and closed in-app', signal: 'Application submitted',
-          insight: 'Won — confirmed via WhatsApp and closed in-app' };
+      if (rand() < WA_CONFIRM_RATE) {
+        return { to: 'inapp_handoff', event: 'confirmed, hand to LeadX+', channel: 'LeadX+ Agent', weight: 1.2,
+          action: 'Confirmed on WhatsApp, handed to the LeadX+ in-app agent', signal: 'Confirmed',
+          insight: 'One confirmation step done — ready to self-serve' };
       }
       return { to: 'lost', event: 'no reply', channel: 'WhatsApp', weight: 1.2,
         action: 'Waited for confirmation', signal: 'No reply to the confirmation',
@@ -213,17 +227,47 @@ function decide(state, ctx) {
 
     case 'high':
       return { to: 'inapp_handoff', event: 'hand to LeadX+', channel: 'LeadX+ Agent', weight: 1,
-        action: 'Handed to the LeadX+ in-app agent, application link sent', signal: 'Opened the link',
+        action: 'Handed to the LeadX+ in-app agent, application link sent', signal: 'Link sent only after live intent was confirmed',
         insight: 'High affinity, ready to self-serve' };
-    case 'inapp_handoff':
-      if (rand() < INAPP_WIN_RATE) {
-        return { to: 'won', event: 'application completed', channel: 'LeadX+ Agent', weight: 1.4,
-          action: 'LeadX+ agent guided the application to completion', signal: 'Completed end-to-end',
-          insight: 'Won — completed via the LeadX+ in-app agent, no human handoff' };
+
+    case 'inapp_handoff': {
+      const f = friction(rand, 'open_link');
+      if (f && f.outcome === 'dropped') {
+        return { to: 'lost', event: 'abandoned the form', channel: 'In-app', weight: 1.4, friction: f,
+          action: 'Opened the link to a long form', signal: 'Abandoned the form',
+          insight: 'Lost — the changed need had nowhere to go' };
       }
-      return { to: 'lost', event: 'dropped off in-app', channel: 'LeadX+ Agent', weight: 1.4,
-        action: 'LeadX+ agent guided the application', signal: 'Abandoned mid-application',
-        insight: 'Lost — friction in the in-app journey' };
+      return { to: 'kyc_check', event: 'form completed', channel: 'In-app', weight: 1.4, friction: f,
+        action: 'Form auto-filled from the AA + CRM relationship',
+        signal: f ? 'Customer wanted a different amount — negotiated live on the call' : 'Opened the link, nothing to re-enter',
+        insight: f ? 'Friction recovered by the built-in fix' : 'Clean pass' };
+    }
+
+    case 'kyc_check': {
+      const f = friction(rand, 'kyc');
+      if (f && f.outcome === 'dropped') {
+        return { to: 'lost', event: 'KYC failed', channel: 'In-app', weight: 1.4, friction: f,
+          action: 'KYC attempted', signal: 'Repeated failures (connection, light, camera permission)',
+          insight: 'Lost — confidence eroded after failed attempts' };
+      }
+      return { to: 'mandate_setup', event: 'KYC verified', channel: 'In-app', weight: 1.4, friction: f,
+        action: f ? 'Agent briefed the customer on a quiet, well-lit spot — KYC retried' : 'Identity verified first time',
+        signal: f ? 'First KYC attempt failed (low light)' : 'KYC verified',
+        insight: f ? 'Friction recovered by the built-in fix' : 'Clean pass' };
+    }
+
+    case 'mandate_setup': {
+      const f = friction(rand, 'mandate');
+      if (f && f.outcome === 'dropped') {
+        return { to: 'lost', event: 'mandate dropped', channel: 'In-app', weight: 1.4, friction: f,
+          action: 'Auto-pay mandate setup', signal: 'Errored, and the customer disengaged',
+          insight: 'Lost — fatigue after a mandate error' };
+      }
+      return { to: 'won', event: 'mandate set', channel: 'In-app', weight: 1.4, friction: f,
+        action: f ? 'Mandate errored — agent offered a UPI switch and kept the application intact' : 'Auto-pay mandate set up',
+        signal: f ? 'Bank timeout on the first attempt' : 'Mandate registered',
+        insight: 'Won — application and mandate completed, no human handoff' };
+    }
 
     default:
       return null; // won / lost are terminal

@@ -68,41 +68,65 @@
     </div>
   </div>
 
-  <!-- ============ SCREEN 4: LIVE STATE MACHINE ============ -->
-  <div class="screen" id="screen-machine">
-    <header class="m-head">
+  <!-- ============ SCREEN 4: PIPELINE (Data Intelligence -> Strategy -> Execution -> Fulfilment) ============ -->
+  <div class="screen" id="screen-pipeline">
+    <header class="p-head">
       <div class="logo-line sm">Lead<span>X</span></div>
-      <div class="m-agent" id="mAgent"></div>
-      <div class="m-stats" id="mStats"></div>
-      <div class="m-actions">
+      <nav class="p-tabs" id="pTabs" aria-label="Pipeline stages"></nav>
+      <div class="p-head-right">
+        <div class="m-agent" id="mAgent"></div>
         <button class="btn-ghost" id="btnChangeVoice" type="button">Change agent</button>
-        <button class="btn-ghost" id="btnRerun" type="button">Run again</button>
+        <button class="btn-ghost" id="btnRerun" type="button">New run</button>
       </div>
     </header>
-    <div class="m-body">
-      <section class="m-graph-wrap">
-        <div class="m-graph-title">
-          <span>Next-best-action state machine</span>
-          <span class="m-status" id="mStatus"></span>
+    <nav class="p-stepper" id="pStepper" aria-label="Steps"></nav>
+
+    <main class="p-body">
+      <!-- Data Intelligence + Strategy steps render into this panel -->
+      <section class="p-panel" id="panel-steps"></section>
+
+      <!-- Execution -->
+      <section class="p-panel" id="panel-execution" hidden>
+        <div class="x-launch" id="xLaunch"></div>
+        <div class="x-live" id="xLive" hidden>
+          <div class="m-stats" id="mStats"></div>
+          <div class="m-body">
+            <section class="m-graph-wrap">
+              <div class="m-graph-title">
+                <span>Next-best-action state machine</span>
+                <span class="m-status" id="mStatus"></span>
+              </div>
+              <div class="m-graph" id="mGraph"><svg class="m-edges" id="mEdges"></svg></div>
+              <div class="m-nba" id="mNba">Hover a state to see its next-best-action.</div>
+              <div class="m-banner" id="mBanner" hidden></div>
+            </section>
+            <aside class="m-side">
+              <section class="m-feed-wrap">
+                <div class="m-panel-title">Live transitions</div>
+                <div class="m-feed" id="mFeed"></div>
+              </section>
+              <section class="m-lead-wrap">
+                <div class="m-panel-title">Lead journey</div>
+                <div class="m-lead" id="mLead"><div class="m-empty">Click a transition or a lead below to follow its journey.</div></div>
+                <div class="m-chips" id="mChips"></div>
+              </section>
+            </aside>
+          </div>
         </div>
-        <div class="m-graph" id="mGraph">
-          <svg class="m-edges" id="mEdges"></svg>
-        </div>
-        <div class="m-nba" id="mNba">Hover a state to see its next-best-action.</div>
-        <div class="m-banner" id="mBanner" hidden></div>
       </section>
-      <aside class="m-side">
-        <section class="m-feed-wrap">
-          <div class="m-panel-title">Live transitions</div>
-          <div class="m-feed" id="mFeed"></div>
-        </section>
-        <section class="m-lead-wrap">
-          <div class="m-panel-title">Lead journey</div>
-          <div class="m-lead" id="mLead"><div class="m-empty">Click a transition or a lead below to follow its journey.</div></div>
-          <div class="m-chips" id="mChips"></div>
-        </section>
-      </aside>
-    </div>
+
+      <!-- Fulfilment -->
+      <section class="p-panel" id="panel-fulfilment" hidden>
+        <div class="f-grid">
+          <section class="m-graph-wrap">
+            <div class="m-graph-title"><span>In-app journey — where it breaks, and the fix</span><span class="m-status" id="fStatus"></span></div>
+            <div class="m-graph f-graph" id="fGraph"><svg class="m-edges" id="fEdges"></svg></div>
+            <div class="m-nba" id="fNba">Hover a step to see how it is handled.</div>
+          </section>
+          <section class="f-slides" id="fSlides"></section>
+        </div>
+      </section>
+    </main>
   </div>
 
 </div>
@@ -111,6 +135,9 @@
 <script src="/js/intro.js"></script>
 <script src="/js/capture.js"></script>
 <script src="/js/orbs.js"></script>
+<script src="/js/graph.js"></script>
+<script src="/js/pipeline.js"></script>
 <script src="/js/machine.js"></script>
+<script src="/js/fulfilment.js"></script>
 </body>
 </html>

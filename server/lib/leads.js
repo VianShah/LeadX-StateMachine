@@ -39,6 +39,24 @@ const LAST_NAMES = ['Sharma', 'Iyer', 'Deshmukh', 'Khan', 'Reddy', 'Kapoor', 'Jo
 const EXISTING_PRODUCT_SETS = ['Savings', 'Savings, FD', 'Savings, Credit Card', 'Savings, Personal Loan', 'Savings, Mutual Fund', 'Savings, FD, Credit Card', 'Savings, Auto Loan', 'Savings, Insurance', 'Savings, FD, Mutual Fund'];
 const CITIES = ['Mumbai', 'Pune', 'Bengaluru', 'Delhi NCR', 'Chennai', 'Hyderabad', 'Ahmedabad', 'Kolkata', 'Jaipur', 'Chandigarh', 'Lucknow'];
 
+const CARD_TYPE_MAP = {
+  Travel: 'Travel Credit Card', Fuel: 'Fuel Credit Card', Dining: 'Dining & Lifestyle Credit Card',
+  Entertainment: 'Entertainment Credit Card', Shopping: 'Shopping / Cashback Credit Card', Groceries: 'Everyday Cashback Credit Card',
+};
+const TONE_BY_BAND = {
+  high: { tone: 'Warm, congratulatory', emotions: ['Pride', 'Opportunity'] },
+  med:  { tone: 'Practical, reassuring', emotions: ['Relief', 'Control'] },
+  low:  { tone: 'Light, respectful', emotions: ['Trust'] },
+};
+const BEST_TIMES = ['Tue & Thu, 6–8 PM', 'Weekday mornings, 10–11 AM', 'Weekend afternoons', 'Weekday evenings, post 7 PM'];
+
+// Where the amount sits inside the product's range: high / med / low tier.
+function tierForAmount(need, amount) {
+  const cfg = NEEDS[need];
+  const ratio = (amount - cfg.min) / (cfg.max - cfg.min);
+  return ratio >= 0.66 ? 'high' : ratio >= 0.33 ? 'med' : 'low';
+}
+
 const clamp01 = (n) => Math.max(0, Math.min(1, n));
 
 function calcEligibleAmount(need, normBal, normCibil) {
@@ -71,11 +89,18 @@ function generateLeads(count, seed) {
     const need = pick(available.length ? available : NEED_KEYS, rand);
     const eligibleAmount = calcEligibleAmount(need, clamp01(balance / 600000), clamp01((cibil - 500) / 300));
 
+    const language = pick(LANGS, rand);
+    const city = pick(CITIES, rand);
+    const spendCategory = pick(SPEND_CATEGORIES, rand);
+    const bestTime = pick(BEST_TIMES, rand);
+    const spendPct = 25 + Math.floor(rand() * 40);
+    const eligibleDisplay = formatAmount(eligibleAmount);
+
     leads.push({
       id: 'LEAD-' + (1001 + i),
       name,
-      city: pick(CITIES, rand),
-      language: pick(LANGS, rand),
+      city,
+      language,
       existing,
       balance,
       cibil,
@@ -86,11 +111,18 @@ function generateLeads(count, seed) {
       why: NEEDS[need].why,
       eligibleAmount,
       eligibleLabel: NEEDS[need].label,
-      eligibleDisplay: formatAmount(eligibleAmount),
-      spendCategory: pick(SPEND_CATEGORIES, rand),
+      eligibleDisplay,
+      eligibleTier: tierForAmount(need, eligibleAmount),
+      spendCategory,
+      spendPct,
+      cardType: CARD_TYPE_MAP[spendCategory],
+      bestTime,
+      tone: TONE_BY_BAND[band].tone,
+      emotions: TONE_BY_BAND[band].emotions,
+      note: `Already holds: ${existing}. Indicative band ${eligibleDisplay} (${NEEDS[need].label}), as surfaced from the bank's pre-approval / policy engine — LeadX personalizes the pitch around it, it doesn't set the number.`,
     });
   }
   return leads;
 }
 
-module.exports = { generateLeads, formatAmount, NEEDS };
+module.exports = { generateLeads, formatAmount, NEEDS, NEED_KEYS };

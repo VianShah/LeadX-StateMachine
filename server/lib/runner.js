@@ -5,6 +5,8 @@ const crypto = require('crypto');
 const config = require('../config');
 const voices = require('../voiceCatalog');
 const { generateLeads } = require('./leads');
+const pipeline = require('./pipeline');
+const fulfilmentSlides = require('./fulfilment');
 const sm = require('./stateMachine');
 
 const RUN_TTL_MS = 60 * 60 * 1000;
@@ -63,14 +65,14 @@ function transition(run, rt, step) {
   const round = {
     n: rt.rounds.length + 1, from, to: step.to, event: step.event, channel: step.channel,
     action: step.action, signal: step.signal, insight: step.insight, at: Date.now(),
+    friction: step.friction || null,
   };
   rt.rounds.push(round);
   emit(run, 'transition', { leadId: rt.lead.id, round, counts: run.counts, summary: summarize(run) });
 }
 
 function finishIfDone(run) {
-  if (run.status === 'complete') return;
-  if (run.counts.won + run.counts.lost < run.leads.size) return;
+  if (run.status !== 'running' || run.counts.won + run.counts.lost < run.leads.size) return;
   run.status = 'complete';
   emit(run, 'run_complete', { counts: run.counts, summary: summarize(run) });
 }
@@ -81,7 +83,7 @@ function createRun({ name, voiceId, leadCount }) {
   const n = Math.min(config.maxLeadCount, Math.max(1, leadCount || config.defaultLeadCount));
   const id = crypto.randomBytes(6).toString('hex');
   const run = {
-    id, name: String(name || '').slice(0, 60), voice, status: 'running', createdAt: Date.now(),
+    id, name: String(name || '').slice(0, 60), voice, status: 'ready', createdAt: Date.now(),
     seed: id, seq: 0, counts: emptyCounts(), leads: new Map(), subscribers: new Set(), queue: [], active: 0,
   };
   for (const lead of generateLeads(n, id)) {
@@ -89,12 +91,25 @@ function createRun({ name, voiceId, leadCount }) {
     run.counts.queued += 1;
     run.queue.push(lead.id);
   }
+  run.pipeline = pipeline.build([...run.leads.values()].map((rt) => rt.lead), voice);
   runs.set(id, run);
   prune();
-  // Start on the next tick so the HTTP response (and the client's SSE
-  // subscription) can land before the first transition fires.
-  setTimeout(() => pump(run), Math.min(600, config.stepDelayMs));
   return run;
+}
+
+// Dispatch starts only when the visitor launches the campaign from the
+// Execution tab, after walking through Data Intelligence and Strategy.
+function launchRun(run) {
+  if (run.status !== 'ready') return false;
+  run.status = 'running';
+  emit(run, 'run_started', { counts: run.counts, summary: summarize(run) });
+  // Next tick so the client's SSE subscription can land before the first transition.
+  setTimeout(() => pump(run), Math.min(600, config.stepDelayMs));
+  return true;
+}
+
+function pipelineView(run) {
+  return { ...run.pipeline, fulfilment: { slides: fulfilmentSlides } };
 }
 
 function pump(run) {
@@ -132,4 +147,4 @@ function prune() {
 
 const getRun = (id) => runs.get(id) || null;
 
-module.exports = { createRun, getRun, snapshot, summarize };
+module.exports = { createRun, launchRun, pipelineView, getRun, snapshot, summarize };
