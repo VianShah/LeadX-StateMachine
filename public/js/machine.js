@@ -58,7 +58,7 @@ function renderLaunchCard(data){
     '<div class="desc">Launch each persona batch as a voice campaign with <b>' + escHtml(voice.name) + '</b>. Once it runs, every call outcome is captured &mdash; not just the ones that convert &mdash; and each one picks that lead&#8217;s next best action.</div>' +
     '<div class="camp-list">' + b.batches.map(p =>
       '<div class="camp-row"><div class="name">' + escHtml(p.need) + ' — ' + escHtml(p.language) + '</div>' +
-      '<div class="meta">' + p.count + ' leads · Voice</div>' +
+      '<div class="meta">' + p.count + (p.count === 1 ? ' lead' : ' leads') + ' · Voice</div>' +
       '<span class="status-pill ready">Ready</span></div>').join('') + '</div>' +
     '<div class="x-launch-actions"><button class="btn-primary x-launch-btn" id="btnLaunch" type="button">Launch campaign &amp; measure intent</button><div id="launchErr" class="launch-err"></div></div>' +
     '<div class="footnote">Scoring, sentiment and outcomes here are simulated for this walkthrough. Production runs on the full Account Aggregator + CRM + CIBIL signal set described in Data Intelligence.</div>';

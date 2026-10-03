@@ -129,6 +129,20 @@ function tick(id){
   if(!el) return;
   el.classList.add('done');
   el.querySelector('.chk-box').textContent = '✓';
+  // Keep the card's progress bar in step with its checklist.
+  const m = /^fi-(\w+)-\d+$/.exec(id);
+  if(m){
+    const items = document.querySelectorAll('[id^="fi-' + m[1] + '-"]');
+    const done = document.querySelectorAll('[id^="fi-' + m[1] + '-"].done');
+    const bar = document.getElementById('meter-' + m[1]);
+    if(bar) bar.style.width = (items.length ? Math.round(done.length / items.length * 100) : 0) + '%';
+  }
+  const t = /^task-(\d+)$/.exec(id);
+  if(t){
+    const all = document.querySelectorAll('[id^="task-"]');
+    const bar = document.getElementById('procMeter');
+    if(bar) bar.style.width = Math.round(document.querySelectorAll('[id^="task-"].done').length / all.length * 100) + '%';
+  }
 }
 
 /* ---------- Data Intelligence ---------- */
@@ -140,7 +154,8 @@ function renderFetch(panel){
     '<div class="fetch-grid">' + f.sources.map(s =>
       '<div class="fetch-card ' + s.key + '"><div class="fetch-title">' + escHtml(s.title) + '</div>' +
       '<div class="fetch-status" id="status-' + s.key + '">Connecting…</div>' +
-      '<div class="fetch-records">' + s.records + ' records</div>' +
+      '<div class="fetch-records"><span class="big">' + s.records + '</span> records</div>' +
+      '<div class="meter"><div class="meter-fill" id="meter-' + s.key + '"></div></div>' +
       '<div class="checklist">' + checklist(s.items, 'fi-' + s.key + '-') + '</div></div>').join('') + '</div>' +
     '<div class="footnote">' + escHtml(f.note) + '</div>' +
     '<div id="fetchNav"></div>';
@@ -168,7 +183,7 @@ function renderProcess(panel){
   panel.innerHTML =
     '<h2>Processing &amp; enrichment</h2>' +
     '<div class="desc">Matching the records to CRM, Account Aggregator and CIBIL, then normalizing them into a single scoring frame.</div>' +
-    '<div class="checklist wide">' + checklist(tasks, 'task-') + '</div><div id="procNav"></div>';
+    '<div class="step-fill"><div class="meter wide"><div class="meter-fill" id="procMeter"></div></div><div class="checklist wide">' + checklist(tasks, 'task-') + '</div></div><div id="procNav"></div>';
   const finish = () => {
     document.getElementById('procNav').innerHTML = navBar('Next: Cross-sell opportunities →', 'btnProcNext');
     document.getElementById('btnProcNext').onclick = nextStep;
@@ -191,7 +206,7 @@ function renderIntent(panel){
     '<div class="desc">' + o.rows.length + ' opportunities identified this run &mdash; each row shows the signal, the need it points to, why, and the bank&#8217;s indicative eligibility band.</div>' +
     '<div class="model-box"><div class="model-box-label">How the propensity model extracts opportunities</div><div class="model-steps">' +
       o.model.map(m => '<div class="model-step"><b>' + escHtml(m.title) + '</b><span>' + escHtml(m.body) + '</span></div>').join('') + '</div></div>' +
-    '<div class="table-scroll tall"><table><thead><tr><th>Customer</th><th>Signal detected</th><th>Need identified</th><th>Why this need</th><th>Eligibility</th><th>Score</th></tr></thead><tbody>' +
+    '<div class="table-scroll step-fill"><table><thead><tr><th>Customer</th><th>Signal detected</th><th>Need identified</th><th>Why this need</th><th>Eligibility</th><th>Score</th></tr></thead><tbody>' +
       o.rows.map(r => '<tr><td class="mono">' + escHtml(r.id) + ' · ' + escHtml(r.name) + '</td><td class="dim">' + escHtml(r.signal) + '</td>' +
         '<td>' + escHtml(r.need) + (r.spendCategory ? ' · ' + escHtml(r.spendCategory) : '') + '</td>' +
         '<td class="why">' + escHtml(r.why) + '</td><td class="mono gold">' + escHtml(r.eligibleDisplay) + '</td><td class="mono dim">' + r.score + '</td></tr>').join('') +
@@ -220,7 +235,7 @@ function renderPitch(panel){
   panel.innerHTML =
     '<h2>Personalized pitch</h2>' +
     '<div class="desc">Built from behaviour and past buying pattern &mdash; language, timing, platform, tone, emotion, and (for cards) the specific card variant, per customer.</div>' +
-    '<div class="pitch-grid"><div class="table-scroll tall"><table><thead><tr><th>Customer</th><th>Need</th><th>Eligibility</th></tr></thead><tbody id="pitchRows"></tbody></table></div><div id="pitchDetail"></div></div>' +
+    '<div class="pitch-grid step-fill"><div class="table-scroll"><table><thead><tr><th>Customer</th><th>Need</th><th>Eligibility</th></tr></thead><tbody id="pitchRows"></tbody></table></div><div id="pitchDetail"></div></div>' +
     navBar('Next: Persona batching →', 'btnPitchNext');
   document.getElementById('btnPitchNext').onclick = nextStep;
   const rowsEl = document.getElementById('pitchRows');
@@ -247,7 +262,7 @@ function renderBatching(panel){
   panel.innerHTML =
     '<h2>Persona batching</h2>' +
     '<div class="desc">Leads grouped by language + product need, so each batch gets one consistent script and send window. <b>' + escHtml(voice.name) + '</b> speaks the language of <b>' + b.matchedLeads + ' of ' + b.totalLeads + '</b> leads.</div>' +
-    '<div class="board">' + b.batches.map(p =>
+    '<div class="board step-fill">' + b.batches.map(p =>
       '<div class="persona' + (p.voiceMatch ? ' match' : '') + '"><div class="lang">' + escHtml(p.language) + '</div><div class="name">' + escHtml(p.need) + '</div>' +
       '<div class="count">' + p.count + '<small>' + (p.count === 1 ? 'lead' : 'leads') + '</small></div>' +
       '<div class="status">' + (p.voiceMatch ? escHtml(voice.name) + ' speaks this ✓' : 'Different language — lower intent expected') + '</div></div>').join('') + '</div>' +
