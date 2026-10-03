@@ -1,0 +1,4 @@
+node_modules
+.next
+data/store.json
+next-env.d.ts
