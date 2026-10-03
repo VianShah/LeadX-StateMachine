@@ -17,6 +17,7 @@ const MAX_CALL_ATTEMPTS = 3;
 //       'action' (a next-best-action being carried out) | 'terminal'
 const STATES = {
   queued:        { label: 'Queued',           kind: 'pipeline', color: '#5D7089', nba: 'Waiting for a free agent slot' },
+  warmup:        { label: 'Warm-up message',  kind: 'pipeline', color: '#7FA7D9', nba: 'Cold sales: a WhatsApp / SMS intro before the first call, so it is not from an unknown number' },
   dialing:       { label: 'On call',          kind: 'pipeline', color: '#8CA0B8', nba: 'Agent is on the line — listening for intent' },
 
   not_connected: { label: 'Not connected',    kind: 'outcome',  color: '#5D7089', nba: 'Retry at a different time slot (up to 2 more attempts), then fall back to SMS' },
@@ -32,7 +33,7 @@ const STATES = {
   nurture_sms:   { label: 'Nurture · SMS',    kind: 'action',   color: '#8C93E8', nba: 'Low-key SMS nurture after a cooling-off period' },
   nurture_wa:    { label: 'Nurture · WhatsApp', kind: 'action', color: '#8C93E8', nba: 'One soft WhatsApp check-in, then close the cycle' },
   wa_confirm:    { label: 'WhatsApp confirm', kind: 'action',   color: '#4FADA0', nba: 'Confirmation message with the application link' },
-  inapp_handoff: { label: 'In-app handoff',   kind: 'action',   color: '#C9A24B', nba: 'LeadX+ agent guiding the application in-app — form auto-filled from AA + CRM' },
+  inapp_handoff: { label: 'In-app handoff',   kind: 'action',   color: '#C9A24B', nba: 'LeadX+ agent guiding the application in-app — form pre-filled (from AA + CRM for customers, a consented AA pull for new prospects)' },
   kyc_check:     { label: 'KYC verification', kind: 'action',   color: '#C9A24B', nba: 'Agent briefs the customer before KYC so the environment is ready' },
   mandate_setup: { label: 'Mandate setup',    kind: 'action',   color: '#C9A24B', nba: 'Auto-pay mandate with retry / switch-UPI / finish-later fallbacks — never a hard restart' },
 
@@ -43,6 +44,8 @@ const STATES = {
 // Every transition decide() can emit. `event` is the label shown on the edge.
 const EDGES = [
   { from: 'queued',        to: 'dialing',       event: 'dispatch' },
+  { from: 'queued',        to: 'warmup',        event: 'intro first' },
+  { from: 'warmup',        to: 'dialing',       event: 'call slot' },
   { from: 'dialing',       to: 'not_connected', event: 'no answer' },
   { from: 'dialing',       to: 'wrong_party',   event: 'wrong person' },
   { from: 'dialing',       to: 'opt_out',       event: 'asked to stop' },
@@ -84,8 +87,15 @@ const BAND_MIX = {
   low:  { high: 0.12, medium: 0.38, low: 0.50 },
 };
 
-const OPT_OUT_RATE = 0.06;
-const WRONG_PARTY_RATE = 0.06;
+// Per-mode list quality. A cold list has no relationship behind it: fewer
+// answers, more wrong numbers, and more people asking not to be called again.
+const MODE_RATES = {
+  // intentShift moves probability from high to low intent: a stranger is harder
+  // to convert than an existing customer with the same fit.
+  cross_sell: { optOut: 0.06, wrongParty: 0.06, connectFactor: 1, intentShift: 0 },
+  cold_sales: { optOut: 0.1, wrongParty: 0.1, connectFactor: 0.88, intentShift: 0.14 },
+};
+const ratesFor = (lead) => MODE_RATES[lead.mode] || MODE_RATES.cross_sell;
 const WA_CONFIRM_RATE = 0.8;
 // Fulfilment: each in-app step hits friction some of the time; the built-in
 // fix recovers most of those, and the rest drop off (see fulfilment.js).
@@ -100,9 +110,13 @@ function friction(rand, step) {
 /** Probability of each intent level for this lead + voice, summing to 1. */
 function intentMix(lead, voice) {
   const mix = { ...BAND_MIX[lead.band] };
+  const shift = ratesFor(lead).intentShift;
+  mix.high -= shift; mix.low += shift;
   const bias = (voice && voice.profile && voice.profile.intentBias) || {};
   for (const k of Object.keys(mix)) mix[k] += bias[k] || 0;
   // Language match: the agent speaks the lead's language, so intent skews up.
+  // (A cold lead called in a bridge language — e.g. English for a Tamil speaker —
+  // gets no boost: lead.language is what they prefer, not what the call used.)
   const matched = !!(voice && voice.languages && voice.languages.includes(lead.language));
   if (matched) { mix.high += 0.08; mix.low -= 0.06; }
   for (const k of Object.keys(mix)) mix[k] = Math.max(0.02, mix[k]);
@@ -132,24 +146,36 @@ function decide(state, ctx) {
 
   switch (state) {
     case 'queued':
+      if (lead.plan && lead.plan.warmup) {
+        return { to: 'warmup', event: 'intro first', channel: lead.plan.warmup, weight: 0.8,
+          action: `Sent a ${lead.plan.warmup} intro in ${callLang(lead)} before the first call`,
+          signal: 'Delivered', insight: lead.plan.howWhy };
+      }
       return { to: 'dialing', event: 'dispatch', channel: 'Voice', weight: 0.4,
-        action: `${voice.name} dials ${lead.name} (${lead.language}) — attempt ${attempt + 1}`,
-        signal: `Pitching ${need}`, insight: `Persona ${voice.name} · ${voice.lang}` };
+        action: `${voice.name} dials ${lead.name} (${callLang(lead)}) — attempt ${attempt + 1}`,
+        signal: `Pitching ${need}`,
+        insight: lead.plan ? `${lead.plan.when} · ${lead.plan.whenWhy}` : `Persona ${voice.name} · ${voice.lang}` };
+
+    case 'warmup':
+      return { to: 'dialing', event: 'call slot', channel: 'Voice', weight: 0.6,
+        action: `${voice.name} calls ${lead.name} in ${callLang(lead)} — attempt ${attempt + 1}`,
+        signal: `Pitching ${need}`, insight: `${lead.plan.when} · ${lead.plan.whenWhy}` };
 
     case 'dialing': {
       const rate = voice.profile && voice.profile.connectRate;
-      const connectRate = typeof rate === 'number' ? rate : 0.8;
+      const modeRates = ratesFor(lead);
+      const connectRate = (typeof rate === 'number' ? rate : 0.8) * modeRates.connectFactor;
       if (rand() > connectRate) {
         return { to: 'not_connected', event: 'no answer', channel: 'Voice', weight: 2.2,
           action: 'Attempted the call', signal: 'No answer after 6 rings',
           insight: 'Unreachable at this time of day' };
       }
-      if (rand() < WRONG_PARTY_RATE) {
+      if (rand() < modeRates.wrongParty) {
         return { to: 'wrong_party', event: 'wrong person', channel: 'Voice', weight: 2.2,
           action: 'Called the number on file', signal: 'Different person answered, not the account holder',
           insight: 'Contact data is unreliable for this lead' };
       }
-      if (rand() < OPT_OUT_RATE) {
+      if (rand() < modeRates.optOut) {
         return { to: 'opt_out', event: 'asked to stop', channel: 'Voice', weight: 2.6,
           action: `Pitched ${need}`, signal: pick(SENTIMENT.opt_out, rand),
           insight: 'Wants zero further contact, on any channel' };
@@ -166,15 +192,18 @@ function decide(state, ctx) {
         insight: insights[level] + (languageMatch ? ` · ${voice.name} spoke ${lead.language}` : '') };
     }
 
-    case 'not_connected':
-      if (attempt < MAX_CALL_ATTEMPTS) {
+    case 'not_connected': {
+      // Cold buckets get fewer attempts (see cold.js PLANS); cross-sell uses the default.
+      const maxAttempts = (lead.plan && lead.plan.maxAttempts) || MAX_CALL_ATTEMPTS;
+      if (attempt < maxAttempts) {
         return { to: 'dialing', event: 'retry', channel: 'Voice', weight: 1,
-          action: 'Retrying at a different time slot', signal: `Attempt ${attempt + 1} of ${MAX_CALL_ATTEMPTS}`,
+          action: 'Retrying at a different time slot', signal: `Attempt ${attempt + 1} of ${maxAttempts}`,
           insight: 'Unreachable on the previous attempt' };
       }
       return { to: 'sms_fallback', event: 'retries exhausted', channel: 'SMS', weight: 1,
         action: 'Sent the offer link since voice failed repeatedly', signal: 'Delivered',
         insight: 'Best-effort fallback channel engaged' };
+    }
     case 'sms_fallback':
       return { to: 'lost', event: 'awaiting self-serve', channel: 'SMS', weight: 0.8,
         action: 'Closed the cycle', signal: 'Never reached live; fallback SMS sent',
@@ -238,7 +267,9 @@ function decide(state, ctx) {
           insight: 'Lost — the changed need had nowhere to go' };
       }
       return { to: 'kyc_check', event: 'form completed', channel: 'In-app', weight: 1.4, friction: f,
-        action: 'Form auto-filled from the AA + CRM relationship',
+        action: lead.mode === 'cold_sales'
+          ? 'Consented Account Aggregator pull filled the form — nothing on file to reuse'
+          : 'Form auto-filled from the AA + CRM relationship',
         signal: f ? 'Customer wanted a different amount — negotiated live on the call' : 'Opened the link, nothing to re-enter',
         insight: f ? 'Friction recovered by the built-in fix' : 'Clean pass' };
     }
@@ -272,6 +303,10 @@ function decide(state, ctx) {
     default:
       return null; // won / lost are terminal
   }
+}
+
+function callLang(lead) {
+  return lead.callLanguage || lead.language;
 }
 
 function isTerminal(state) {

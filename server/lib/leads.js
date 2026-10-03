@@ -125,4 +125,4 @@ function generateLeads(count, seed) {
   return leads;
 }
 
-module.exports = { generateLeads, formatAmount, NEEDS, NEED_KEYS };
+module.exports = { generateLeads, formatAmount, calcEligibleAmount, tierForAmount, NEEDS, NEED_KEYS };

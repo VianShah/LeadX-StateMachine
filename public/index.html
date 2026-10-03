@@ -24,7 +24,7 @@
       <label for="captureName">Your name</label>
       <input id="captureName" type="text" autocomplete="name" placeholder="e.g. Ananya Rao" maxlength="60">
       <button class="btn-primary" id="btnStart" type="button" disabled>Start the demo</button>
-      <div class="foot-note">Step 1 of 3 &middot; Intro</div>
+      <div class="foot-note">Step 1 of 4 &middot; Intro</div>
     </div>
   </div>
 
@@ -49,11 +49,36 @@
     <button class="sl-skip" id="btnSkipIntro" type="button">Skip intro &#x2192;</button>
   </div>
 
-  <!-- ============ SCREEN 3: AGENT VOICE SELECTION ============ -->
+  <!-- ============ SCREEN 3: CAMPAIGN TYPE ============ -->
+  <div class="screen" id="screen-mode">
+    <div class="brand"><div class="logo-line sm">Lead<span>X</span></div></div>
+    <div class="mode-wrap">
+      <div class="eyebrow">Step 2 of 4 &middot; Campaign type</div>
+      <h1>Who are we reaching out to?</h1>
+      <p>Same agents and the same state machine &mdash; the difference is where the leads come from and how much we already know about them.</p>
+      <div class="mode-cards" role="radiogroup" aria-label="Campaign type">
+        <button type="button" class="mode-card" data-mode="cross_sell" role="radio" aria-checked="false">
+          <div class="mc-tag">Existing customers</div>
+          <div class="mc-title">Cross-sell</div>
+          <div class="mc-body">Read each customer&#8217;s behaviour from the bank&#8217;s own systems (Account Aggregator, CRM, CIBIL), find the product gap, and pitch the next product.</div>
+          <ul class="mc-list"><li>Data fetched from bank systems</li><li>Pre-approved eligibility band</li><li>Form pre-filled from the relationship</li></ul>
+        </button>
+        <button type="button" class="mode-card" data-mode="cold_sales" role="radio" aria-checked="false">
+          <div class="mc-tag">New prospects</div>
+          <div class="mc-title">Cold sales</div>
+          <div class="mc-body">Start from an Excel list &mdash; names, phone numbers, CIBIL and a few basics &mdash; and derive when to call, how to call and in which language, then bucket and launch.</div>
+          <ul class="mc-list"><li>Upload .xlsx or .csv</li><li>Validation, DND and CIBIL cutoff</li><li>Hot / Warm / Cold buckets with a contact plan</li></ul>
+        </button>
+      </div>
+      <div class="mode-actions"><button class="btn-primary" id="btnModeNext" type="button" disabled>Continue to voice selection</button></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 4: AGENT VOICE SELECTION ============ -->
   <div class="screen" id="screen-orbs">
     <div class="brand"><div class="logo-line sm">Lead<span>X</span></div></div>
     <div class="orbs-head">
-      <div class="eyebrow">Step 2 of 3 &middot; Voice selection</div>
+      <div class="eyebrow">Step 3 of 4 &middot; Voice selection</div>
       <h1>Choose your agent&#x2019;s voice</h1>
       <p>Scroll, drag, use the arrow keys, or tap either side to browse. Each voice has its own language and style &mdash; and changes how the campaign plays out.</p>
     </div>
@@ -68,13 +93,14 @@
     </div>
   </div>
 
-  <!-- ============ SCREEN 4: PIPELINE (Data Intelligence -> Strategy -> Execution -> Fulfilment) ============ -->
+  <!-- ============ SCREEN 5: PIPELINE (Data Intelligence -> Strategy -> Execution -> Fulfilment) ============ -->
   <div class="screen" id="screen-pipeline">
     <header class="p-head">
       <div class="logo-line sm">Lead<span>X</span></div>
       <nav class="p-tabs" id="pTabs" aria-label="Pipeline stages"></nav>
       <div class="p-head-right">
         <div class="m-agent" id="mAgent"></div>
+        <button class="btn-ghost" id="btnChangeMode" type="button">Campaign type</button>
         <button class="btn-ghost" id="btnChangeVoice" type="button">Change agent</button>
         <button class="btn-ghost" id="btnRerun" type="button">New run</button>
       </div>
@@ -134,9 +160,11 @@
 <script src="/js/state.js"></script>
 <script src="/js/intro.js"></script>
 <script src="/js/capture.js"></script>
+<script src="/js/mode.js"></script>
 <script src="/js/orbs.js"></script>
 <script src="/js/graph.js"></script>
 <script src="/js/pipeline.js"></script>
+<script src="/js/cold_sales.js"></script>
 <script src="/js/machine.js"></script>
 <script src="/js/fulfilment.js"></script>
 </body>

@@ -236,3 +236,54 @@ tr.clickable{cursor:pointer;} tr.clickable:hover, tr.selected{background:var(--p
 .f-stat.good .v{color:var(--green);} .f-stat.bad .v{color:var(--red);}
 .slide-nav{display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:18px;}
 .slide-dots{display:flex; gap:7px;} .slide-dot{width:8px; height:8px; border-radius:50%; background:var(--border); border:none; padding:0; cursor:pointer;} .slide-dot.active{background:var(--amber);}
+
+/* ---------- campaign type ---------- */
+#screen-mode{align-items:center; justify-content:center;}
+.mode-wrap{width:920px; text-align:center;}
+.mode-wrap h1{font-size:28px; letter-spacing:-.4px; margin:10px 0 8px;}
+.mode-wrap > p{color:var(--text-dim); font-size:14px; margin-bottom:26px;}
+.mode-cards{display:grid; grid-template-columns:1fr 1fr; gap:18px; text-align:left;}
+.mode-card{
+  background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:22px 24px; cursor:pointer;
+  color:var(--text); font-family:var(--sans); text-align:left; transition:border-color .15s var(--ease-out), background .15s var(--ease-out), transform .15s var(--ease-out);
+}
+.mode-card:hover{background:var(--panel-2); transform:translateY(-2px);}
+.mode-card.selected{border-color:var(--amber); background:var(--panel-2); box-shadow:0 0 0 1px var(--amber);}
+.mc-tag{font:500 10.5px var(--mono); color:var(--amber); text-transform:uppercase; letter-spacing:.8px;}
+.mc-title{font-size:22px; font-weight:700; margin:6px 0 8px;}
+.mc-body{font-size:13.5px; color:var(--text-dim); line-height:1.55;}
+.mc-list{margin:14px 0 0 18px; font-size:12.5px; color:var(--text); line-height:1.9;}
+.mode-actions{width:320px; margin:26px auto 0;}
+
+/* ---------- cold sales steps ---------- */
+.sm{font-size:10.5px;}
+.bad-text{color:var(--red);}
+.bucket-chip{display:inline-block; font:600 10px var(--mono); text-transform:uppercase; letter-spacing:.5px; padding:2px 8px; border-radius:9px; color:var(--c); border:1px solid var(--c);}
+.upload-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:18px; grid-template-rows:minmax(0,1fr);}
+.dropzone{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; cursor:pointer;
+  border:2px dashed var(--border); border-radius:16px; background:var(--panel); padding:30px; transition:border-color .15s, background .15s;
+}
+.dropzone:hover, .dropzone.over{border-color:var(--blue); background:var(--panel-2);}
+.dz-icon{font-size:38px; color:var(--blue);}
+.dz-title{font-size:16px; font-weight:600;}
+.dz-sub{font-size:12px; color:var(--text-faint);}
+.dz-status{font-size:13px; color:var(--text-dim); min-height:20px; margin-top:8px; max-width:520px;}
+.dz-status.err{color:var(--red);}
+.upload-side{background:var(--panel); border:1px solid var(--border-soft); border-radius:16px; padding:16px 18px; overflow-y:auto;}
+table.cols td{padding:6px 4px; font-size:12px;}
+.upload-actions{display:flex; gap:10px; align-items:center; margin-top:14px;}
+.upload-actions a.btn-ghost{text-decoration:none; padding:10px 14px;}
+.intake-tiles{display:grid; grid-template-columns:repeat(3, 180px); gap:10px; margin-bottom:14px;}
+.intake-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-content:start;}
+.intake-box{background:var(--panel); border:1px solid var(--border-soft); border-radius:12px; padding:14px 16px;}
+.col-map{display:flex; gap:10px; font-size:12.5px; padding:5px 0; border-bottom:1px solid var(--border-soft);}
+.col-map .mono{min-width:150px;}
+.validate-grid{display:grid; grid-template-columns:420px 1fr; gap:20px; grid-template-rows:minmax(0,1fr);}
+.buckets.five{grid-template-columns:repeat(4,1fr);}
+.bucket-col.excluded h3{color:var(--red);}
+.bucket-card .nm .sm{margin-top:1px;}
+.pr-sub{font-size:11px; font-weight:400; color:var(--text-faint); margin-top:2px; max-width:330px;}
+.persona .lang .bucket-chip{margin-right:6px;}
+.persona.routed{border-color:rgba(167,139,250,.5);}
+.persona .status.agent{color:var(--text-dim);} .persona.routed .status.agent{color:var(--purple);}

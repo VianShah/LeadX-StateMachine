@@ -3,13 +3,25 @@
 // POST /api/runs creates a run (leads + chosen voice), GET /api/runs/:id/pipeline
 // returns what each step displays. Steps unlock one at a time; you can always go
 // back to any step you've reached.
-const TABS = [
-  { label: 'Data Intelligence', sub: 'Fetch → score → band' },
-  { label: 'Strategy Building', sub: 'Pitch → batch' },
-  { label: 'Execution', sub: 'Intent matching' },
-  { label: 'Fulfilment', sub: 'Friction, addressed' },
-];
-const STEPS = [
+//
+// Two campaign types share this screen. Cross-sell reads existing customers from
+// the bank's systems; cold sales starts from an uploaded prospect list, so its
+// Data Intelligence and Strategy steps differ (cold_sales.js renders those).
+const TAB_SETS = {
+  cross_sell: [
+    { label: 'Data Intelligence', sub: 'Fetch → score → band' },
+    { label: 'Strategy Building', sub: 'Pitch → batch' },
+    { label: 'Execution', sub: 'Intent matching' },
+    { label: 'Fulfilment', sub: 'Friction, addressed' },
+  ],
+  cold_sales: [
+    { label: 'Data Intelligence', sub: 'Upload → score → bucket' },
+    { label: 'Strategy Building', sub: 'When · how · language' },
+    { label: 'Execution', sub: 'Intent matching' },
+    { label: 'Fulfilment', sub: 'Friction, addressed' },
+  ],
+};
+const STEPS_CROSS = [
   { k: 'fetch',       tab: 0, label: 'Fetching',          sub: 'From bank systems' },
   { k: 'process',     tab: 0, label: 'Processing',        sub: 'Clean + enrich' },
   { k: 'intent',      tab: 0, label: 'Cross-sell opportunities', sub: 'Propensity model' },
@@ -19,6 +31,17 @@ const STEPS = [
   { k: 'execution',   tab: 2, label: 'Run & measure',     sub: 'Launch + state machine' },
   { k: 'fulfilment',  tab: 3, label: 'Fulfilment',        sub: 'Friction, addressed' },
 ];
+const STEPS_COLD = [
+  { k: 'upload',      tab: 0, label: 'Upload list' },
+  { k: 'validate',    tab: 0, label: 'Validation' },
+  { k: 'fit',         tab: 0, label: 'Product fit' },
+  { k: 'buckets',     tab: 0, label: 'Buckets' },
+  { k: 'contact',     tab: 1, label: 'Contact strategy' },
+  { k: 'coldBatch',   tab: 1, label: 'Campaigns' },
+  { k: 'execution',   tab: 2, label: 'Run & measure' },
+  { k: 'fulfilment',  tab: 3, label: 'Fulfilment' },
+];
+let STEPS = STEPS_CROSS, TABS = TAB_SETS.cross_sell;
 const STEP_EXECUTION = 6, STEP_FULFILMENT = 7;
 
 const pipe = { step: 0, max: 0, data: null, done: {}, timers: [], pitchIdx: 0 };
@@ -27,7 +50,13 @@ let machineDef = null;
 const fmtAmount = (n) => n >= 100000 ? '₹' + (n / 100000).toFixed(n % 100000 === 0 ? 0 : 1) + ' L' : '₹' + n.toLocaleString('en-IN');
 
 async function startPipeline(){
+  const mode = state.mode || 'cross_sell';
+  STEPS = mode === 'cold_sales' ? STEPS_COLD : STEPS_CROSS;
+  TABS = TAB_SETS[mode];
   clearPipeTimers();
+  if(typeof teardownRun === 'function') teardownRun();
+  state.run = null;
+  pipe.data = null; pipe.step = 0; pipe.max = 0; pipe.done = {}; pipe.pitchIdx = 0;
   goTo('screen-pipeline');
   const panel = document.getElementById('panel-steps');
   showPanel('steps');
@@ -40,24 +69,36 @@ async function startPipeline(){
       if(!res.ok) throw new Error('machine ' + res.status);
       machineDef = await res.json();
     }
+    if(mode === 'cold_sales'){
+      // Nothing to create yet: the run starts from the list uploaded in step 1.
+      document.getElementById('mAgent').innerHTML =
+        'Cold sales &middot; lead agent <strong>' + escHtml(state.voice.name) + '</strong>';
+      renderPipeline();
+      return;
+    }
     const created = await fetch('/api/runs', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: state.name, voiceId: state.voice.id }),
+      body: JSON.stringify({ name: state.name, voiceId: state.voice.id, mode }),
     });
     if(!created.ok) throw new Error('runs ' + created.status);
-    const run = await created.json();
-    const pres = await fetch('/api/runs/' + run.id + '/pipeline');
-    if(!pres.ok) throw new Error('pipeline ' + pres.status);
-    pipe.data = await pres.json();
-    pipe.step = 0; pipe.max = 0; pipe.done = {}; pipe.pitchIdx = 0;
-    prepareRun(run, machineDef, pipe.data); // machine.js
-    document.getElementById('mAgent').innerHTML =
-      'Agent <strong>' + escHtml(run.voice.name) + '</strong> &middot; ' + escHtml(run.voice.lang) + ' &middot; ' + run.leads.length + ' leads';
+    await adoptRun(await created.json());
     renderPipeline();
   } catch(e) {
     panel.innerHTML = '<div class="p-loading">Couldn&#8217;t prepare the campaign. <button class="btn-ghost" id="pRetry" type="button">Retry</button></div>';
     document.getElementById('pRetry').onclick = startPipeline;
   }
+}
+
+// A run exists (created from bank data, the sample list or an upload): load what
+// each step displays and hand the run to the Execution tab.
+async function adoptRun(run){
+  const pres = await fetch('/api/runs/' + run.id + '/pipeline');
+  if(!pres.ok) throw new Error('pipeline ' + pres.status);
+  pipe.data = await pres.json();
+  prepareRun(run, machineDef, pipe.data); // machine.js
+  document.getElementById('mAgent').innerHTML = run.mode === 'cold_sales'
+    ? 'Cold sales &middot; lead agent <strong>' + escHtml(run.voice.name) + '</strong> &middot; ' + run.leads.length + ' callable leads'
+    : 'Agent <strong>' + escHtml(run.voice.name) + '</strong> &middot; ' + escHtml(run.voice.lang) + ' &middot; ' + run.leads.length + ' leads';
 }
 
 function clearPipeTimers(){ pipe.timers.forEach(clearTimeout); pipe.timers = []; }
@@ -116,7 +157,9 @@ function renderPipeline(){
   if(k === 'fulfilment'){ showPanel('fulfilment'); onFulfilmentShown(); return; } // fulfilment.js
   showPanel('steps');
   const panel = document.getElementById('panel-steps');
-  ({ fetch: renderFetch, process: renderProcess, intent: renderIntent, eligibility: renderEligibility, pitch: renderPitch, batching: renderBatching })[k](panel);
+  ({ fetch: renderFetch, process: renderProcess, intent: renderIntent, eligibility: renderEligibility, pitch: renderPitch, batching: renderBatching,
+     upload: renderUpload, validate: renderValidate, fit: renderFit, buckets: renderColdBuckets, contact: renderContact, coldBatch: renderColdBatching, // cold_sales.js
+  })[k](panel);
 }
 
 const navBar = (label, id) => '<div class="nav-btns"><span></span><button class="btn-next" id="' + id + '" type="button">' + label + '</button></div>';
@@ -277,3 +320,8 @@ document.getElementById('btnChangeVoice').addEventListener('click', () => {
   renderOrbCarousel(false);
 });
 document.getElementById('btnRerun').addEventListener('click', () => { teardownRun(); startPipeline(); });
+document.getElementById('btnChangeMode').addEventListener('click', () => {
+  if(typeof teardownRun === 'function') teardownRun();
+  clearPipeTimers();
+  goTo('screen-mode');
+});

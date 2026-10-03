@@ -20,6 +20,12 @@ const LAYOUT_EXEC = {
   nurture_wa: [74.5, 60], inapp_handoff: [74.5, 88],
   lost: [91, 30],
 };
+// Cold sales adds the warm-up message (WhatsApp / SMS intro) between queued and
+// the first call, stacked under the queue.
+function execLayout(){
+  if(!state.run || state.run.mode !== 'cold_sales') return LAYOUT_EXEC;
+  return { ...LAYOUT_EXEC, queued: [8.5, 34], warmup: [8.5, 68] };
+}
 const LAYOUT_FUL = {
   inapp_handoff: [12, 50], kyc_check: [38, 50], mandate_setup: [64, 50],
   won: [90, 26], lost: [90, 74],
@@ -53,13 +59,22 @@ function closeStream(){
 
 function renderLaunchCard(data){
   const b = data.batching, voice = state.run.voice;
-  document.getElementById('xLaunch').innerHTML =
-    '<h2>Run &amp; measure</h2>' +
-    '<div class="desc">Launch each persona batch as a voice campaign with <b>' + escHtml(voice.name) + '</b>. Once it runs, every call outcome is captured &mdash; not just the ones that convert &mdash; and each one picks that lead&#8217;s next best action.</div>' +
-    '<div class="camp-list">' + b.batches.map(p =>
+  const cold = data.mode === 'cold_sales';
+  const rows = cold
+    ? b.batches.map(p =>
+      '<div class="camp-row"><div class="name">' + bucketChip(p.bucket) + ' ' + escHtml(p.language) + ' — ' + escHtml(p.when) + '</div>' +
+      '<div class="meta">' + p.count + (p.count === 1 ? ' prospect' : ' prospects') + ' · ' + escHtml(p.agent) + '</div>' +
+      '<span class="status-pill ready">Ready</span></div>')
+    : b.batches.map(p =>
       '<div class="camp-row"><div class="name">' + escHtml(p.need) + ' — ' + escHtml(p.language) + '</div>' +
       '<div class="meta">' + p.count + (p.count === 1 ? ' lead' : ' leads') + ' · Voice</div>' +
-      '<span class="status-pill ready">Ready</span></div>').join('') + '</div>' +
+      '<span class="status-pill ready">Ready</span></div>');
+  document.getElementById('xLaunch').innerHTML =
+    '<h2>Run &amp; measure</h2>' +
+    (cold
+      ? '<div class="desc">Launch the ' + b.batches.length + ' cold campaigns. Warm and Cold prospects get their intro message first; every call runs in its time slot and language, and each outcome picks that prospect&#8217;s next best action.</div>'
+      : '<div class="desc">Launch each persona batch as a voice campaign with <b>' + escHtml(voice.name) + '</b>. Once it runs, every call outcome is captured &mdash; not just the ones that convert &mdash; and each one picks that lead&#8217;s next best action.</div>') +
+    '<div class="camp-list">' + rows.join('') + '</div>' +
     '<div class="x-launch-actions"><button class="btn-primary x-launch-btn" id="btnLaunch" type="button">Launch campaign &amp; measure intent</button><div id="launchErr" class="launch-err"></div></div>' +
     '<div class="footnote">Scoring, sentiment and outcomes here are simulated for this walkthrough. Production runs on the full Account Aggregator + CRM + CIBIL signal set described in Data Intelligence.</div>';
   document.getElementById('btnLaunch').onclick = launchCampaign;
@@ -88,7 +103,7 @@ async function launchCampaign(){
 function buildExecGraph(){
   execGraph = new StateGraph({
     graphEl: document.getElementById('mGraph'), svgEl: document.getElementById('mEdges'), nbaEl: document.getElementById('mNba'),
-    layout: LAYOUT_EXEC, skipEdgesFrom: ['inapp_handoff'],
+    layout: execLayout(), skipEdgesFrom: ['inapp_handoff'],
     ghost: { key: '__fulfilment', label: 'To Fulfilment', sub: 'in-app journey', pos: [91, 88], after: 'inapp_handoff',
       hint: 'Leads that said yes continue into the in-app journey — click to see where it breaks and the fix.',
       onClick: () => goStep(STEP_FULFILMENT) },
@@ -231,7 +246,10 @@ function renderLead(id){
   const st = stateByKey[l.state] || { label: l.state, nba: '' };
   document.getElementById('mLead').innerHTML =
     '<h3>' + escHtml(l.name) + '</h3>' +
-    '<div class="meta">' + escHtml(l.city) + ' · ' + escHtml(l.language) + ' · score ' + escHtml(l.score) + ' · CIBIL ' + escHtml(l.cibil) + '<br>Holds: ' + escHtml(l.existing) + '</div>' +
+    (l.mode === 'cold_sales'
+      ? '<div class="meta">' + escHtml(l.phoneMasked) + ' · ' + escHtml(l.city) + ' · ' + escHtml(l.occupationLabel) + ' · CIBIL ' + escHtml(l.cibilDisplay) + '<br>' +
+        bucketChip(l.bucket) + ' ' + escHtml(l.plan.how) + ' · ' + escHtml(l.plan.when) + ' · in ' + escHtml(l.callLanguage) + '</div>'
+      : '<div class="meta">' + escHtml(l.city) + ' · ' + escHtml(l.language) + ' · score ' + escHtml(l.score) + ' · CIBIL ' + escHtml(l.cibil) + '<br>Holds: ' + escHtml(l.existing) + '</div>') +
     '<div class="need">Pitch: <b>' + escHtml(l.need) + '</b> up to <b>' + escHtml(l.eligibleDisplay) + '</b><br>' + escHtml(l.signal) + '</div>' +
     '<div class="need">Now: <b>' + escHtml(st.label) + '</b> &mdash; ' + escHtml(st.nba) + '</div>' +
     l.rounds.map(r =>

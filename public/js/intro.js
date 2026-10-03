@@ -104,8 +104,7 @@ function enterIntro(){
 function leaveIntro(){
   introTimers.forEach(t => clearTimeout(t));
   introTimers = [];
-  goTo('screen-orbs');
-  renderOrbCarousel();
+  goTo('screen-mode');
 }
 
 function runIntro(){
@@ -131,7 +130,7 @@ function runIntro(){
   // → Execution (the state machine) → Fulfilment.
   const beats = [
     { text:'Most leads never become revenue.',
-      sub:'Wrong customer. Wrong pitch. Wrong moment.', dur:4600 },
+      sub:'Existing customers or a cold list — wrong pitch, wrong language, wrong moment.', dur:4600 },
     { text:'LeadX is a platform of specialized agents, working in perfect harmony.',
       sub:'Proactive. Personalized. Outcome-based by design.', dur:4800, revealAgents:true },
     { text:'It starts with Data Intelligence: every signal, pulled in at once.',
@@ -146,7 +145,7 @@ function runIntro(){
     { text:'Until Fulfilment: from interest to revenue, without drop-offs.',
       sub:'In-app closing · Friction handled · Audited',
       ch:'var(--green)', agents:['LeadX+ In-app Agent','Reconciliation Agent','Audit Agent'], dur:5000 },
-    { text:'This is LeadX.', sub:`Welcome, ${firstName}. Let's pick the voice of your agent.`, dur:4600 },
+    { text:'This is LeadX.', sub:`Welcome, ${firstName}. Let's set up your campaign.`, dur:4600 },
   ];
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   introTimers.forEach(t => clearTimeout(t));

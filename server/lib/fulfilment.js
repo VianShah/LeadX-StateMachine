@@ -2,7 +2,7 @@
 // into this one. Copy ported from the original static demo. `step` ties each
 // slide to the `friction.step` the state machine emits (stateMachine.js), so the
 // UI can show live counts of how often each friction point was hit and fixed.
-module.exports = [
+const SLIDES = [
   {
     step: 'intent_call',
     eyebrow: 'Step 01 — Before the click',
@@ -32,3 +32,23 @@ module.exports = [
     fix: 'On a mandate error, the agent reassures the customer and offers alternatives — retry, switch UPI app, or finish the mandate later — while keeping the rest of the application intact. Never a hard restart.',
   },
 ];
+
+// Cold sales has no bank relationship to pre-fill from, so the Step 02 fix is
+// different: consent-based data pull at the form instead of AA + CRM auto-fill.
+const COLD_OVERRIDES = {
+  intent_call: {
+    body: 'This is what usually happens with a bought or partner list: the same link goes out by SMS to every number on it, from a sender the person has never heard of. Most ignore it; many mark it as spam.',
+    fix: 'A short warm-up message first, then a call in the right language at the right time slot — the link only goes out once the person has said yes on the call.',
+  },
+  open_link: {
+    body: 'A new-to-bank prospect has nothing on file, so the form asks for everything — income, employer, address, documents — and that long list is exactly where cold leads drop off.',
+    fix: 'The agent asks for consent to fetch income and bank data through the Account Aggregator right inside the form, so most fields fill themselves; changes in what they want are negotiated live on the call.',
+  },
+};
+
+function slidesFor(mode) {
+  if (mode !== 'cold_sales') return SLIDES;
+  return SLIDES.map((s) => (COLD_OVERRIDES[s.step] ? { ...s, ...COLD_OVERRIDES[s.step] } : s));
+}
+
+module.exports = { SLIDES, slidesFor };

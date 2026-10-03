@@ -6,11 +6,14 @@ const config = require('../config');
 const voices = require('../voiceCatalog');
 const { generateLeads } = require('./leads');
 const pipeline = require('./pipeline');
-const fulfilmentSlides = require('./fulfilment');
+const { slidesFor } = require('./fulfilment');
+const cold = require('./cold');
 const sm = require('./stateMachine');
 
 const RUN_TTL_MS = 60 * 60 * 1000;
 const MAX_RUNS = 50;
+const MODES = ['cross_sell', 'cold_sales'];
+const MAX_COLD_LEADS = 200; // a demo run dispatches at most this many valid rows
 const runs = new Map();
 
 function findVoice(id) {
@@ -34,13 +37,15 @@ function summarize(run) {
   };
 }
 
+// Raw phone numbers never leave the server — the UI only ever sees phoneMasked.
 function publicLead(rt) {
-  return { ...rt.lead, state: rt.state, attempt: rt.attempt, rounds: rt.rounds };
+  const { phone, ...lead } = rt.lead;
+  return { ...lead, state: rt.state, attempt: rt.attempt, rounds: rt.rounds };
 }
 
 function snapshot(run) {
   return {
-    id: run.id, name: run.name, status: run.status, createdAt: run.createdAt,
+    id: run.id, name: run.name, mode: run.mode, status: run.status, createdAt: run.createdAt,
     voice: { id: run.voice.id, name: run.voice.name, lang: run.voice.lang, meta: run.voice.meta },
     counts: run.counts, summary: summarize(run),
     leads: [...run.leads.values()].map(publicLead),
@@ -77,21 +82,47 @@ function finishIfDone(run) {
   emit(run, 'run_complete', { counts: run.counts, summary: summarize(run) });
 }
 
-function createRun({ name, voiceId, leadCount }) {
+function httpError(status, code, extra) {
+  const e = new Error(code); e.status = status; e.extra = extra; return e;
+}
+
+/**
+ * mode 'cross_sell' (default): synthetic existing customers, leadCount of them.
+ * mode 'cold_sales': `rows` from an uploaded list (or the sample list when absent),
+ *   analysed by cold.js; only valid rows become leads, each routed to the agent
+ *   that speaks its call language.
+ */
+function createRun({ name, voiceId, leadCount, mode = 'cross_sell', rows }) {
   const voice = findVoice(voiceId);
-  if (!voice) { const e = new Error('unknown_voice'); e.status = 400; throw e; }
-  const n = Math.min(config.maxLeadCount, Math.max(1, leadCount || config.defaultLeadCount));
+  if (!voice) throw httpError(400, 'unknown_voice');
+  if (!MODES.includes(mode)) throw httpError(400, 'unknown_mode');
   const id = crypto.randomBytes(6).toString('hex');
   const run = {
-    id, name: String(name || '').slice(0, 60), voice, status: 'ready', createdAt: Date.now(),
+    id, name: String(name || '').slice(0, 60), voice, mode, status: 'ready', createdAt: Date.now(),
     seed: id, seq: 0, counts: emptyCounts(), leads: new Map(), subscribers: new Set(), queue: [], active: 0,
   };
-  for (const lead of generateLeads(n, id)) {
-    run.leads.set(lead.id, { lead, state: 'queued', attempt: 0, rounds: [] });
+
+  let leads;
+  if (mode === 'cold_sales') {
+    const analysis = cold.analyze(rows || cold.sampleRows(), voice, voices);
+    if (!analysis.leads.length) throw httpError(422, 'no_eligible_leads', { intake: analysis.intake, excluded: analysis.excluded });
+    leads = analysis.leads.sort((a, b) => b.score - a.score).slice(0, MAX_COLD_LEADS);
+    analysis.intake.dispatched = leads.length;
+    analysis.intake.truncated = analysis.leads.length > leads.length;
+    run.pipeline = cold.pipelineView(leads, analysis.excluded, analysis.intake, voice, voices);
+  } else {
+    const n = Math.min(config.maxLeadCount, Math.max(1, leadCount || config.defaultLeadCount));
+    leads = generateLeads(n, id);
+    run.pipeline = pipeline.build(leads, voice);
+  }
+
+  for (const lead of leads) {
+    run.leads.set(lead.id, { lead, voice: findVoice(lead.voiceId) || voice, state: 'queued', attempt: 0, rounds: [] });
     run.counts.queued += 1;
     run.queue.push(lead.id);
   }
-  run.pipeline = pipeline.build([...run.leads.values()].map((rt) => rt.lead), voice);
+  // Bigger lists get more parallel lines so a long upload still finishes in minutes.
+  run.concurrency = Math.min(30, Math.max(config.concurrency, Math.ceil(leads.length / 6)));
   runs.set(id, run);
   prune();
   return run;
@@ -109,11 +140,11 @@ function launchRun(run) {
 }
 
 function pipelineView(run) {
-  return { ...run.pipeline, fulfilment: { slides: fulfilmentSlides } };
+  return { ...run.pipeline, mode: run.mode, fulfilment: { slides: slidesFor(run.mode) } };
 }
 
 function pump(run) {
-  while (run.active < config.concurrency && run.queue.length) {
+  while (run.active < run.concurrency && run.queue.length) {
     const rt = run.leads.get(run.queue.shift());
     run.active += 1;
     advance(run, rt);
@@ -123,7 +154,7 @@ function pump(run) {
 // One step for one lead, then schedule the next. The delay is applied *before*
 // the transition so the UI shows a lead "sitting" in a state for a beat.
 function advance(run, rt) {
-  const step = sm.decide(rt.state, { lead: rt.lead, voice: run.voice, seed: run.seed, attempt: rt.attempt });
+  const step = sm.decide(rt.state, { lead: rt.lead, voice: rt.voice, seed: run.seed, attempt: rt.attempt });
   if (!step) { // terminal — free the slot
     run.active -= 1;
     finishIfDone(run);

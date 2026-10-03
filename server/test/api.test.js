@@ -64,6 +64,39 @@ test('GET /runs/:id/pipeline returns every stage, consistent with the run', asyn
   for (const b of p.batching.batches) assert.equal(b.voiceMatch, ['Hindi', 'Marathi'].includes(b.language));
 });
 
+test('cold sales: sample run, upload, phone privacy, and a list with nothing callable', async () => {
+  const sample = await post('/runs', { name: 'C', voiceId: 'maya', mode: 'cold_sales' });
+  assert.equal(sample.status, 201);
+  const run = await sample.json();
+  assert.equal(run.mode, 'cold_sales');
+  assert.ok(run.leads.length > 20);
+  assert.ok(run.leads.every((l) => !('phone' in l) && /^••••••\d{4}$/.test(l.phoneMasked)));
+
+  const p = await (await fetch(`${base}/runs/${run.id}/pipeline`)).json();
+  assert.equal(p.mode, 'cold_sales');
+  assert.ok(p.intake.excludedCount > 0);
+  assert.equal(p.contact.rows.length, run.leads.length);
+  assert.match(p.fulfilment.slides[1].fix, /consent/);
+
+  const csv = 'Name,Phone,CIBIL\nAsha,9876543210,742\nRavi,9123456789,701\nBad,123,700\n';
+  const up = await fetch(`${base}/runs/upload?filename=list.csv&voiceId=ria&name=U`, { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: csv });
+  assert.equal(up.status, 201);
+  const uploaded = await up.json();
+  assert.equal(uploaded.leads.length, 2);
+  assert.ok(!JSON.stringify(uploaded).includes('9876543210'));
+
+  const none = await fetch(`${base}/runs/upload?filename=list.csv&voiceId=ria`, { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: 'Name,Phone\nA,1\n' });
+  assert.equal(none.status, 422);
+  assert.equal((await none.json()).error, 'no_eligible_leads');
+
+  const bad = await fetch(`${base}/runs/upload?filename=list.pdf&voiceId=ria`, { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: 'x' });
+  assert.equal(bad.status, 400);
+
+  const tpl = await fetch(`${base}/cold/sample.csv`);
+  assert.match(tpl.headers.get('content-type'), /text\/csv/);
+  assert.match(await tpl.text(), /^Customer Name,Mobile Number,CIBIL Score/);
+});
+
 test('unknown run is 404', async () => {
   assert.equal((await fetch(base + '/runs/missing')).status, 404);
 });

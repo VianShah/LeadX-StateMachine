@@ -77,6 +77,10 @@ class StateGraph {
       const x1 = fx + fw, x2 = tx - tw, dx = (x2 - x1) / 2;
       return { d: 'M' + x1 + ',' + fy + ' C' + (x1 + dx) + ',' + fy + ' ' + (x2 - dx) + ',' + ty + ' ' + x2 + ',' + ty, mx: (x1 + x2) / 2, my: (fy + ty) / 2, gap: x2 - x1 };
     }
+    if (Math.abs(tx - fx) < fw + tw && ty > fy) { // stacked in one column: bottom edge -> top edge
+      const y1 = fy + a.offsetHeight / 2, y2 = ty - th;
+      return { d: 'M' + fx + ',' + y1 + ' L' + tx + ',' + y2, mx: fx, my: (y1 + y2) / 2, gap: 0 };
+    }
     // backward (the retry loop): left edge of source -> top of target
     const x1 = fx - fw, y2 = ty - th;
     return { d: 'M' + x1 + ',' + fy + ' C' + (x1 - 50) + ',' + fy + ' ' + tx + ',' + (y2 - 60) + ' ' + tx + ',' + y2, mx: (x1 + tx) / 2 - 12, my: (fy + y2) / 2 - 22, gap: 999 };

@@ -3,6 +3,8 @@ const voices = require('../voiceCatalog');
 const sm = require('../lib/stateMachine');
 const runner = require('../lib/runner');
 const config = require('../config');
+const cold = require('../lib/cold');
+const { parseList, toCsv } = require('../lib/listParser');
 
 const router = express.Router();
 
@@ -18,16 +20,41 @@ router.get('/voices', (req, res) => {
 // The machine definition — the UI renders states/edges from this.
 router.get('/machine', (req, res) => res.json(sm.definition()));
 
+function sendError(res, err, where) {
+  if (err.status) return res.status(err.status).json({ error: err.code || err.message, message: err.code ? err.message : undefined, ...(err.extra || {}) });
+  console.error(`[${where}] failed`, err);
+  res.status(500).json({ error: 'internal_error' });
+}
+
+// Body: { name, voiceId, mode?: 'cross_sell' | 'cold_sales', leadCount? }.
+// A cold_sales run created here uses the built-in sample list.
 router.post('/runs', (req, res) => {
-  const { name, voiceId, leadCount } = req.body || {};
+  const { name, voiceId, leadCount, mode } = req.body || {};
   try {
-    const run = runner.createRun({ name, voiceId, leadCount: parseInt(leadCount, 10) || config.defaultLeadCount });
+    const run = runner.createRun({ name, voiceId, mode, leadCount: parseInt(leadCount, 10) || config.defaultLeadCount });
     res.status(201).json(runner.snapshot(run));
   } catch (err) {
-    if (err.status) return res.status(err.status).json({ error: err.message });
-    console.error('[runs] create failed', err);
-    res.status(500).json({ error: 'internal_error' });
+    sendError(res, err, 'runs');
   }
+});
+
+// Cold sales from an uploaded list. The raw file is the request body;
+// ?filename= (.xlsx or .csv), ?voiceId= and ?name= travel in the query string.
+router.post('/runs/upload', express.raw({ type: () => true, limit: '5mb' }), async (req, res) => {
+  const { filename, voiceId, name } = req.query;
+  try {
+    const rows = await parseList(req.body, filename);
+    const run = runner.createRun({ name, voiceId, mode: 'cold_sales', rows });
+    res.status(201).json(runner.snapshot(run));
+  } catch (err) {
+    sendError(res, err, 'runs/upload');
+  }
+});
+
+// The sample list as a CSV — also the template for what a list should look like.
+router.get('/cold/sample.csv', (req, res) => {
+  res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="leadx-cold-list-sample.csv"' });
+  res.send(toCsv(cold.sampleRows()));
 });
 
 // Data Intelligence + Strategy + Fulfilment content for this run's leads and voice.
