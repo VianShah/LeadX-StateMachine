@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadX — Lead to Revenue</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ SCREEN 1: WELCOME / CAPTURE ============ -->
+  <div class="screen active" id="screen-capture">
+    <div class="capture-card">
+      <div class="logo-line">Lead<span>X</span></div>
+      <div class="eyebrow">Lead &rarr; Revenue &middot; live demo</div>
+      <h1>See an agentic lead pipeline run, live.</h1>
+      <p>Pick an agent voice and watch a campaign move through the LeadX next-best-action state machine, one decision at a time.</p>
+      <label for="captureName">Your name</label>
+      <input id="captureName" type="text" autocomplete="name" placeholder="e.g. Ananya Rao" maxlength="60">
+      <button class="btn-primary" id="btnStart" type="button" disabled>Start the demo</button>
+      <div class="foot-note">Step 1 of 3 &middot; Intro</div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2: CINEMATIC INTRO ============ -->
+  <div class="screen" id="screen-intro">
+    <div class="sl-glow"></div>
+    <div class="ib-agents-bg" id="ibAgentsBg"></div>
+    <div class="sl-content">
+      <div id="ibStage"></div>
+      <div class="ib-journey" id="ibJourney">
+        <div class="ib-journey-orb">
+          <svg viewBox="0 0 150 150">
+            <circle class="ib-journey-track" cx="75" cy="75" r="66"/>
+            <circle class="ib-journey-progress" id="ibJourneyProgress" cx="75" cy="75" r="66"/>
+          </svg>
+          <div class="ib-journey-sphere" id="ibJourneySphere"></div>
+        </div>
+        <div class="ib-journey-chips" id="ibJourneyChips"></div>
+      </div>
+      <div class="ib-waveform-constant" id="ibWaveformConstant"></div>
+    </div>
+    <button class="sl-skip" id="btnSkipIntro" type="button">Skip intro &#x2192;</button>
+  </div>
+
+  <!-- ============ SCREEN 3: AGENT VOICE SELECTION ============ -->
+  <div class="screen" id="screen-orbs">
+    <div class="brand"><div class="logo-line sm">Lead<span>X</span></div></div>
+    <div class="orbs-head">
+      <div class="eyebrow">Step 2 of 3 &middot; Voice selection</div>
+      <h1>Choose your agent&#x2019;s voice</h1>
+      <p>Scroll, drag, use the arrow keys, or tap either side to browse. Each voice has its own language and style &mdash; and changes how the campaign plays out.</p>
+    </div>
+    <div class="orb-carousel-wrap">
+      <div class="orb-nav" id="orbPrev" role="button" aria-label="Previous voice">&#8249;</div>
+      <div class="orb-carousel" id="orbCarousel"></div>
+      <div class="orb-nav" id="orbNext" role="button" aria-label="Next voice">&#8250;</div>
+    </div>
+    <div class="orb-detail" id="orbDetail"></div>
+    <div class="orbs-actions">
+      <button class="btn-primary" id="btnOrbNext" type="button" disabled>Confirm agent &amp; launch campaign</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 4: PIPELINE (Data Intelligence -> Strategy -> Execution -> Fulfilment) ============ -->
+  <div class="screen" id="screen-pipeline">
+    <header class="p-head">
+      <div class="logo-line sm">Lead<span>X</span></div>
+      <nav class="p-tabs" id="pTabs" aria-label="Pipeline stages"></nav>
+      <div class="p-head-right">
+        <div class="m-agent" id="mAgent"></div>
+        <button class="btn-ghost" id="btnChangeVoice" type="button">Change agent</button>
+        <button class="btn-ghost" id="btnRerun" type="button">New run</button>
+      </div>
+    </header>
+    <nav class="p-stepper" id="pStepper" aria-label="Steps"></nav>
+
+    <main class="p-body">
+      <!-- Data Intelligence + Strategy steps render into this panel -->
+      <section class="p-panel" id="panel-steps"></section>
+
+      <!-- Execution -->
+      <section class="p-panel" id="panel-execution" hidden>
+        <div class="x-launch" id="xLaunch"></div>
+        <div class="x-live" id="xLive" hidden>
+          <div class="m-stats" id="mStats"></div>
+          <div class="m-body">
+            <section class="m-graph-wrap">
+              <div class="m-graph-title">
+                <span>Next-best-action state machine</span>
+                <span class="m-status" id="mStatus"></span>
+              </div>
+              <div class="m-graph" id="mGraph"><svg class="m-edges" id="mEdges"></svg></div>
+              <div class="m-nba" id="mNba">Hover a state to see its next-best-action.</div>
+              <div class="m-banner" id="mBanner" hidden></div>
+            </section>
+            <aside class="m-side">
+              <section class="m-feed-wrap">
+                <div class="m-panel-title">Live transitions</div>
+                <div class="m-feed" id="mFeed"></div>
+              </section>
+              <section class="m-lead-wrap">
+                <div class="m-panel-title">Lead journey</div>
+                <div class="m-lead" id="mLead"><div class="m-empty">Click a transition or a lead below to follow its journey.</div></div>
+                <div class="m-chips" id="mChips"></div>
+              </section>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fulfilment -->
+      <section class="p-panel" id="panel-fulfilment" hidden>
+        <div class="f-grid">
+          <section class="m-graph-wrap">
+            <div class="m-graph-title"><span>In-app journey — where it breaks, and the fix</span><span class="m-status" id="fStatus"></span></div>
+            <div class="m-graph f-graph" id="fGraph"><svg class="m-edges" id="fEdges"></svg></div>
+            <div class="m-nba" id="fNba">Hover a step to see how it is handled.</div>
+          </section>
+          <section class="f-slides" id="fSlides"></section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+</div>
+<script src="/js/viewportFit.js"></script>
+<script src="/js/state.js"></script>
+<script src="/js/intro.js"></script>
+<script src="/js/capture.js"></script>
+<script src="/js/orbs.js"></script>
+<script src="/js/graph.js"></script>
+<script src="/js/pipeline.js"></script>
+<script src="/js/machine.js"></script>
+<script src="/js/fulfilment.js"></script>
+</body>
+</html>

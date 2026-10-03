@@ -1,0 +1,16 @@
+{
+  "name": "leadx-statemachine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LeadX — lead-to-revenue pipeline demo: intro, agent voice selection, and a live server-driven state machine",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test \"server/test/*.test.js\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}
