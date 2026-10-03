@@ -1,0 +1,280 @@
+:root{
+  --bg: #08090c;
+  --panel: #101216;
+  --panel-2: #14171d;
+  --border: #22262e;
+  --border-soft: #1a1d24;
+  --text: #eef0f3;
+  --text-dim: #9aa1ad;
+  --text-faint: #5c6270;
+  --blue: #3b82f6;
+  --blue-dim: #1d3a63;
+  --green: #34d399;
+  --amber: #f5b942;
+  --purple: #a78bfa;
+  --red: #f56565;
+  --whatsapp: #25d366;
+  --mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Shared easing tokens — extend these, don't fork new curves elsewhere. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+/* One shared keyboard-focus ring for every interactive element — Apple's
+   "wayfinding" principle (every screen should answer "where am I") applies
+   to keyboard navigation too, and there was no visible focus indicator
+   anywhere in the app: several buttons/inputs explicitly set
+   `outline:none` with no replacement, and everything else relied on the
+   browser default, which barely reads against this dark palette. :focus-
+   visible (not :focus) so mouse/touch clicks never show a ring, only
+   actual keyboard navigation does. */
+:focus-visible{
+  outline:2px solid var(--blue); outline-offset:2px; border-radius:4px;
+}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-feature-settings:'ss01' 1, 'cv05' 1;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+/* Viewport-fit scaling (2026-09-08) — the whole app is designed at a fixed
+   1440x900 reference size and uniformly scaled to fit whatever screen it's
+   actually opened on (iPad, a laptop at various zoom levels, a wide
+   monitor...), via #app's transform (set in public/js/viewportFit.js). This
+   replaces fighting responsive breakpoints one cropped element at a time —
+   every child still lays out against the same 1440x900 box it always has,
+   so nothing reflows differently at different sizes, it's the exact same
+   layout just visually bigger or smaller as a whole unit. position:fixed
+   here also makes #app the containing block for any fixed-position
+   descendant (e.g. .brand below) per spec once a transform is present, so
+   those scale and stay positioned correctly inside the reference frame
+   too, instead of escaping it to the real viewport. */
+#app{
+  width:1440px; height:900px;
+  position:fixed; top:50%; left:50%;
+  transform-origin:center center;
+  /* transform itself (translate + scale) is set by viewportFit.js — this
+     default keeps things sane for a split second before that JS runs. */
+  transform:translate(-50%,-50%);
+}
+.screen{
+  position:absolute; inset:0;
+  display:none;
+  animation:fadeIn .45s ease both;
+}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+/* ---------- shared ---------- */
+.brand{
+  display:flex; align-items:center; gap:10px;
+  position:fixed; top:28px; left:32px; z-index:5;
+}
+.brand .mark{
+  width:34px; height:34px; border-radius:8px; background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; padding:5px; overflow:hidden;
+}
+.brand .mark img{width:100%; height:100%; object-fit:contain;}
+.brand .name{font-weight:700; font-size:15px; letter-spacing:.2px;}
+.brand .sub{font-size:11px; color:var(--text-faint); margin-top:1px;}
+
+/* =========================================================
+   Appended styles for new screens: Soft Launch, Orb Carousel,
+   Archetype Select, Persona Typewriter, Phone Mockup,
+   NBA-Now card, Right-panel toggle, Ingest animations.
+   Original styles.css content is unchanged above.
+========================================================= */
+
+/* ---------- SOFT LAUNCH (cinematic marketing intro) ----------
+   Ported from kollect-demo.html 2026-09-05 — replaces the old 2-line fade
+   intro with the 7-beat sequence (agent-orb halo, constant waveform,
+   mini-cards, fly-in big card, animated funnel, progress bar, narration).
+   .sl-line/.sl-line.strong removed — public/index.html no longer has
+   #slLine1/#slLine2, replaced by #ibStage (see softlaunch.js). */
+#screen-intro{flex-direction:column; align-items:center; justify-content:center; background:#000; overflow:hidden;}
+.sl-glow{position:absolute; inset:0; background:radial-gradient(ellipse 700px 460px at 50% 45%, rgba(59,130,246,.10), transparent 70%); animation:slPulse 4s ease-in-out infinite; z-index:0;}
+@keyframes slPulse{0%,100%{opacity:.5;} 50%{opacity:1;}}
+.sl-content{position:relative; z-index:2; text-align:center; max-width:640px; padding:40px; min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;}
+.sl-skip{position:fixed; bottom:32px; right:32px; font-size:12px; color:var(--text-faint); background:rgba(20,20,24,.5); backdrop-filter:blur(12px) saturate(160%); -webkit-backdrop-filter:blur(12px) saturate(160%); border:1px solid var(--border-soft); border-radius:8px; padding:8px 16px; cursor:pointer; font-family:var(--sans); transition:color .15s var(--ease-out), border-color .15s var(--ease-out); z-index:5;}
+.sl-skip:hover{color:var(--text); border-color:var(--blue);}
+
+/* the journey orb — the one motion-graphic system for the whole intro, always
+   present and impossible to miss (was a small peripheral element before;
+   now it's the visual the text sits directly above). Named agents pulled
+   from the real dashboard's own step data spawn off it per stage, styled
+   after the Core exploration's glowing-sphere-with-ring-fill language. */
+.ib-journey{margin-top:30px; display:flex; flex-direction:column; align-items:center; opacity:0; transition:opacity .6s var(--ease-out);}
+.ib-journey.show{opacity:1;}
+.ib-journey-orb{position:relative; width:150px; height:150px; flex-shrink:0;}
+.ib-journey-orb svg{position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg);}
+.ib-journey-track{fill:none; stroke:var(--border-soft); stroke-width:2;}
+.ib-journey-progress{fill:none; stroke:var(--blue); stroke-width:2; stroke-linecap:round; transition:stroke-dashoffset .7s var(--ease-in-out), stroke .5s var(--ease-out);}
+.ib-journey-sphere{
+  position:absolute; inset:32px; border-radius:50%;
+  background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.9), rgba(59,130,246,.55) 42%, rgba(59,130,246,.08) 75%);
+  box-shadow:0 0 34px rgba(59,130,246,.35), inset 0 0 26px rgba(255,255,255,.14);
+  animation:ibJourneyBreathe 3.2s var(--ease-in-out) infinite;
+}
+@keyframes ibJourneyBreathe{0%,100%{transform:scale(1);} 50%{transform:scale(1.045);}}
+.ib-journey-sphere.pulse{animation:ibJourneyBreathe 3.2s var(--ease-in-out) infinite, ibJourneyPulse .55s var(--ease-out);}
+@keyframes ibJourneyPulse{
+  0%{box-shadow:0 0 34px rgba(59,130,246,.35), inset 0 0 26px rgba(255,255,255,.14);}
+  45%{box-shadow:0 0 56px rgba(59,130,246,.65), inset 0 0 34px rgba(255,255,255,.24);}
+  100%{box-shadow:0 0 34px rgba(59,130,246,.35), inset 0 0 26px rgba(255,255,255,.14);}
+}
+
+/* agent chips — spawn from the orb's position outward into a loose row
+   beneath it (translateY from above + a per-chip --dx spread), staggered
+   ~90ms apart so several agents read as arriving together, not queued. */
+.ib-journey-chips{display:flex; gap:10px; margin-top:18px; min-height:34px; flex-wrap:wrap; justify-content:center; max-width:560px;}
+.ib-chip{
+  display:flex; align-items:center; gap:7px; padding:8px 14px; border-radius:20px;
+  background:rgba(20,20,24,.55); backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid var(--ch, var(--border)); font-size:11.5px; font-weight:600; color:var(--text); white-space:nowrap;
+  opacity:0; transform:translate(var(--dx,0), -54px) scale(.5); filter:blur(8px);
+  transition:opacity .5s var(--ease-out), transform .5s var(--ease-out), filter .5s var(--ease-out);
+}
+.ib-chip.show{opacity:1; transform:translate(0,0) scale(1); filter:blur(0);}
+.ib-chip-dot{width:6px; height:6px; border-radius:50%; background:var(--ch, var(--blue)); flex-shrink:0;}
+.ib-chip-loop-icon{width:12px; height:12px; flex-shrink:0; fill:var(--ch, var(--amber)); animation:ibChipSpin 1.8s linear infinite;}
+@keyframes ibChipSpin{to{transform:rotate(360deg);}}
+
+/* persistent background layer — a cluster of glass agent-orbs, each visibly doing a different job */
+.ib-agents-bg{position:absolute; inset:0; z-index:1; pointer-events:none; opacity:0; transition:opacity 1.4s ease; perspective:900px;}
+.ib-agents-bg.show{opacity:1;}
+.ib-agent-cluster{
+  position:absolute; inset:4% 3%;
+  transform-style:preserve-3d; transition:transform .25s ease-out;
+}
+.ib-agent-orb{
+  position:absolute; border-radius:50%;
+  background:radial-gradient(circle at 32% 26%, rgba(255,255,255,.42), rgba(59,130,246,.16) 52%, rgba(255,255,255,.03) 100%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.35), 0 10px 22px rgba(0,0,0,.45);
+  animation:ibOrbFloat 6s ease-in-out infinite, ibOrbGlow 3.4s ease-in-out infinite;
+}
+@keyframes ibOrbFloat{0%,100%{transform:translateY(0);} 50%{transform:translateY(-9px);}}
+@keyframes ibOrbGlow{0%,100%{opacity:.5;} 50%{opacity:.9;}}
+/* type: spin — a partial ring rotating around the orb, reads as "actively processing" */
+.ib-agent-orb.type-spin::after{
+  content:''; position:absolute; inset:-3px; border-radius:50%;
+  border:1.5px solid transparent; border-top-color:rgba(255,255,255,.55); border-right-color:rgba(255,255,255,.16);
+  animation:ibOrbSpin 2.1s linear infinite;
+}
+@keyframes ibOrbSpin{to{transform:rotate(360deg);}}
+/* type: blink — an inner status light, reads as "signal / indicator" */
+.ib-agent-orb.type-blink::before{
+  content:''; position:absolute; top:32%; left:32%; width:24%; height:24%; border-radius:50%;
+  background:rgba(255,255,255,.9); animation:ibOrbBlink 1.5s ease-in-out infinite;
+}
+@keyframes ibOrbBlink{0%,100%{opacity:.85;} 50%{opacity:.1;}}
+/* type: orbit — a satellite dot circling the orb, reads as "routing / dispatching" */
+.ib-agent-orb.type-orbit::after{
+  content:''; position:absolute; width:5px; height:5px; margin:-2.5px 0 0 -2.5px; top:50%; left:50%;
+  border-radius:50%; background:rgba(255,255,255,.85);
+  animation:ibOrbOrbit 2.6s linear infinite;
+}
+@keyframes ibOrbOrbit{from{transform:rotate(0deg) translateX(var(--orbit-r,18px)) rotate(0deg);} to{transform:rotate(360deg) translateX(var(--orbit-r,18px)) rotate(-360deg);}}
+
+/* beats alternate their entry side (left/right) so the sequence reads as one
+   continuous pass instead of seven identical fades — see AGENT_ORB_LAYOUT
+   comment above for the same idea applied to the background. */
+.ib-beat{opacity:0; transform:translateY(10px); transition:opacity .6s var(--ease-out), transform .6s var(--ease-out); cursor:pointer;}
+.ib-beat.from-left{transform:translate(-18px, 10px);}
+.ib-beat.from-right{transform:translate(18px, 10px);}
+.ib-beat.show{opacity:1; transform:translate(0, 0);}
+.ib-headline{font-size:27px; color:var(--text); font-weight:600; line-height:1.35; letter-spacing:-.01em;}
+/* the payoff line ("This is Kollect.") gets its own weight so it reads as the
+   climax, not beat #7 of 7 rendered identically to the rest — larger display
+   text gets tighter leading and more negative tracking, per size (not one
+   fixed letter-spacing for every headline in this screen) */
+.ib-headline-climax{font-size:40px; font-weight:700; line-height:1.15; letter-spacing:-.025em;}
+.ib-sub{font-size:12px; color:var(--text-faint); margin-top:6px; letter-spacing:.2px;}
+
+/* word-level mask reveal (Kinetic exploration) — each word rises and
+   sharpens into place individually instead of the whole line fading as one
+   block, on top of the beat's own from-left/from-right entrance. */
+.ib-word-mask{display:inline-block; overflow:hidden; vertical-align:top; padding-bottom:.1em;}
+.ib-word{display:inline-block; transform:translateY(115%); opacity:0; filter:blur(6px); transition:transform .55s var(--ease-out), opacity .45s var(--ease-out), filter .45s var(--ease-out);}
+.ib-beat.show .ib-word{transform:translateY(0); opacity:1; filter:blur(0);}
+
+/* the constant waveform — the voice channel, always live during the opening beats.
+   Red while the problem is being framed, blue once the platform beat lands, then fades
+   out once the journey orb takes over (it was competing with it for attention). */
+.ib-waveform-constant{margin-top:26px; display:flex; align-items:center; justify-content:center; gap:4px; height:34px; position:relative; z-index:2; opacity:1; transition:opacity .8s ease;}
+.ib-waveform-constant.wave-hidden{opacity:0;}
+.ib-waveform-constant .ib-wave-bar{width:4px; border-radius:2.5px; background:var(--red); transform-origin:center; transition:background-color 1.2s ease; animation:ibWaveBar 1.3s ease-in-out infinite;}
+.ib-waveform-constant.wave-blue .ib-wave-bar{background:var(--blue);}
+@keyframes ibWaveBar{0%,100%{transform:scaleY(.4);} 50%{transform:scaleY(1);}}
+
+/* Reduced motion: the intro is otherwise a full-viewport, continuously
+   animating background (orb float/spin/blink/orbit, waveform, chip spawns) —
+   exactly the case prefers-reduced-motion exists for. Comprehension-aiding
+   opacity changes stay; everything vestibular or looping drops out. */
+@media (prefers-reduced-motion: reduce){
+  .sl-glow{animation:none; opacity:.75;}
+  .ib-agent-orb, .ib-agent-orb::before, .ib-agent-orb::after{animation:none;}
+  .ib-agent-cluster{transition:none; transform:none !important;}
+  .ib-waveform-constant .ib-wave-bar{animation:none; transform:scaleY(.7);}
+  .ib-beat{transition:opacity .3s ease; transform:none !important;}
+  .ib-word{transition:opacity .3s ease; transform:none !important; filter:none !important;}
+  .ib-journey-sphere, .ib-journey-sphere.pulse{animation:none;}
+  .ib-chip{transition:opacity .3s ease; transform:none !important; filter:none !important;}
+  .ib-chip-loop-icon{animation:none;}
+}
+
+/* ---------- ORB VOICE CAROUSEL ---------- */
+#screen-orbs{flex-direction:column; align-items:center; justify-content:center; padding:40px;}
+.orbs-head{text-align:center; margin-bottom:6px; position:relative; z-index:2;}
+.orbs-head .eyebrow{font-size:11.5px; color:var(--blue); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:10px;}
+.orbs-head h1{font-size:24px; font-weight:700; letter-spacing:-.3px; margin-bottom:8px;}
+.orbs-head p{color:var(--text-dim); font-size:14px;}
+.orb-carousel-wrap{display:flex; align-items:center; gap:16px; width:100%; max-width:820px; margin:16px 0;}
+.orb-nav{
+  width:38px; height:38px; border-radius:50%; background:var(--panel-2); border:1px solid var(--border-soft);
+  color:var(--text-dim); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  font-size:17px; transition:all .15s; user-select:none; position:relative; z-index:200;
+}
+.orb-nav:hover{border-color:var(--blue); color:var(--blue);}
+.orb-carousel{
+  position:relative; flex:1; height:270px; perspective:1100px; touch-action:pan-y; cursor:grab; overflow:visible;
+}
+.orb-carousel:active{cursor:grabbing;}
+.orb{
+  position:absolute; left:50%; top:50%; display:flex; flex-direction:column; align-items:center;
+  cursor:pointer; transition:transform .45s cubic-bezier(.22,1,.36,1), opacity .45s ease; user-select:none;
+}
+.orb.disabled{cursor:not-allowed;}
+.orb-sphere{
+  width:104px; height:104px; border-radius:50%; position:relative;
+  background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.65), var(--pastel) 46%, rgba(255,255,255,.06) 100%);
+  box-shadow:0 16px 32px rgba(0,0,0,.5);
+  animation:orbFloat 5s ease-in-out infinite;
+}
+.orb.disabled .orb-sphere{filter:grayscale(.65) brightness(.65);}
+.orb-glow{
+  position:absolute; inset:-16px; border-radius:50%; background:var(--pastel);
+  filter:blur(26px); opacity:.38; z-index:-1; transition:opacity .3s, filter .3s; pointer-events:none;
+}
+.orb.front .orb-glow{opacity:.6;}
+.orb-sphere.speaking .orb-glow{opacity:1; filter:blur(34px); animation:orbPulse .9s ease-in-out infinite, orbFloat 5s ease-in-out infinite;}
+@keyframes orbPulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.2);}}
+@keyframes orbFloat{0%,100%{transform:translateY(0);} 50%{transform:translateY(-9px);}}
+.orb-label{margin-top:12px; text-align:center;}
+.orb .oname{font-size:13px; font-weight:700; color:#fff;}
+.orb .olang{font-size:9.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.4px; margin-top:2px;}
+.orb .osoon{font-size:8.5px; color:var(--text-faint); margin-top:5px;}
+.orb-play{
+  margin-top:8px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); border-radius:16px;
+  padding:4px 13px; font-size:9.5px; color:#fff; cursor:pointer; font-family:var(--sans); transition:all .15s;
+}
+.orb-play:hover{border-color:var(--pastel);}
+.orb-play.playing{border-color:var(--pastel); color:var(--pastel);}
+.orbs-actions{margin-top:6px; width:100%; max-width:300px; position:relative; z-index:2;}
+
