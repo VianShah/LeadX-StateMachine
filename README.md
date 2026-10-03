@@ -49,6 +49,17 @@ server-driven demo. Flow, modelled on the Kollect booth demo:
 
    Raw phone numbers stay on the server; the browser only ever sees them masked.
 
+   **Agent library, region-wise.** Every batch (cross-sell) and campaign (cold
+   sales) card shows the best voices for its language/region from the agent
+   library — the 48 Sales agents (cross-selling + cold sales) of the
+   [Kollect agent catalog](https://github.com/VianShah/Kollect-StateMachine),
+   copied to `server/data/agentLibrary.json`. Ranking: must speak the language,
+   then best-performing region, same service as the run, product, Live status,
+   QC score. Cold campaigns are grouped by the prospect's own language, so a
+   Tamil campaign called in English still shows the Tamil voices that could
+   call it in Tamil. "Browse the agent library" opens the full library,
+   filterable by language/region and service, with each agent's profile.
+
 Calls are **simulated** (no telephony provider yet). The chosen voice changes
 the outcome mix: each persona has its own connect rate and intent bias, and a
 voice that speaks the lead's language gets a small boost to high intent.
@@ -77,11 +88,13 @@ server/
   lib/fulfilment.js     Friction slides: where in-app journeys break and the fix for each (per mode)
   lib/cold.js           Cold sales: column mapping, validation, product fit, buckets, contact plan, sample list
   lib/listParser.js     .xlsx (exceljs) and .csv parsing for uploaded lists
+  lib/agentLibrary.js   Region-wise voice recommendations from the agent library
+  data/agentLibrary.json Sales agents from the Kollect agent catalog
   lib/runner.js         Dispatches leads with bounded concurrency, emits one event per transition
   lib/rng.js            Seeded RNG so runs are reproducible
   routes/api.js         /api/voices, /api/machine, POST /api/runs (mode: cross_sell | cold_sales),
                         POST /api/runs/upload, GET /api/runs/:id[/pipeline|/events (SSE)],
-                        POST /api/runs/:id/launch, GET /api/cold/sample.csv
+                        POST /api/runs/:id/launch, GET /api/cold/sample.csv, GET /api/agent-library
   test/                 State-machine invariants, cold-list analysis, API/SSE integration
 public/
   index.html, css/, js/ Vanilla JS front end; the graph is drawn from GET /api/machine
@@ -114,3 +127,5 @@ transition the engine can emit is a declared edge and that every lead terminates
 - Maya/Ria/Vijay languages and styles in `voiceCatalog.js` are placeholders — adjust to the real agents.
 - Cold sales: the DND check only honours the list's own DND column — production needs the TRAI NCPR registry.
   Only Hindi, Hinglish, English and Marathi have agents; other languages fall back to English.
+- Library recommendations are a showcase: calls in this demo are still placed by Maya / Ria / Vijay.
+  The library has no English-only or Bengali/Malayalam voices; English maps to Hinglish voices.

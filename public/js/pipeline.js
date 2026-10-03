@@ -304,11 +304,13 @@ function renderBatching(panel){
   const voice = state.run ? state.run.voice : state.voice;
   panel.innerHTML =
     '<h2>Persona batching</h2>' +
-    '<div class="desc">Leads grouped by language + product need, so each batch gets one consistent script and send window. <b>' + escHtml(voice.name) + '</b> speaks the language of <b>' + b.matchedLeads + ' of ' + b.totalLeads + '</b> leads.</div>' +
+    '<div class="desc">Leads grouped by language + product need, so each batch gets one consistent script and send window. <b>' + escHtml(voice.name) + '</b> speaks the language of <b>' + b.matchedLeads + ' of ' + b.totalLeads + '</b> leads; each batch also shows the best voices for its region from the agent library. ' +
+      '<button type="button" class="link-btn" data-open-library>Browse the agent library →</button></div>' +
     '<div class="board step-fill">' + b.batches.map(p =>
       '<div class="persona' + (p.voiceMatch ? ' match' : '') + '"><div class="lang">' + escHtml(p.language) + '</div><div class="name">' + escHtml(p.need) + '</div>' +
       '<div class="count">' + p.count + '<small>' + (p.count === 1 ? 'lead' : 'leads') + '</small></div>' +
-      '<div class="status">' + (p.voiceMatch ? escHtml(voice.name) + ' speaks this ✓' : 'Different language — lower intent expected') + '</div></div>').join('') + '</div>' +
+      '<div class="status">' + (p.voiceMatch ? escHtml(voice.name) + ' speaks this ✓' : 'Different language — lower intent expected') + '</div>' +
+      libraryBlock(p.library) + '</div>').join('') + '</div>' +
     navBar('Next: Launch the campaign →', 'btnBatchNext');
   document.getElementById('btnBatchNext').onclick = nextStep;
 }

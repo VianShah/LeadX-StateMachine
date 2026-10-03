@@ -210,14 +210,16 @@ function renderColdBatching(panel){
   const lead = state.run.voice;
   panel.innerHTML =
     '<h2>Campaigns</h2>' +
-    '<div class="desc">Prospects grouped by bucket, call language and time slot &mdash; one script and one send window per campaign. <b>' + escHtml(lead.name) + '</b> takes ' + b.matchedLeads + ' of ' + b.totalLeads +
-      ' prospects; ' + b.routedLeads + ' are routed to the agent who speaks their language.</div>' +
+    '<div class="desc">Prospects grouped by bucket, their own language and time slot &mdash; one script and one send window per campaign. <b>' + escHtml(lead.name) + '</b> takes ' + b.matchedLeads + ' of ' + b.totalLeads +
+      ' prospects; ' + b.routedLeads + ' are routed to the agent who speaks their language. Each campaign also shows the best voices for its region from the agent library &mdash; including voices that could call bridged prospects in their own language. ' +
+      '<button type="button" class="link-btn" data-open-library>Browse the agent library →</button></div>' +
     '<div class="board step-fill">' + b.batches.map(p =>
       '<div class="persona' + (p.agent !== lead.name ? ' routed' : '') + '">' +
-      '<div class="lang">' + bucketChip(p.bucket) + ' ' + escHtml(p.language) + '</div><div class="name">' + escHtml(p.when) + '</div>' +
+      '<div class="lang">' + bucketChip(p.bucket) + ' ' + escHtml(p.language) + (p.callLanguage !== p.language ? ' · called in ' + escHtml(p.callLanguage) : '') + '</div><div class="name">' + escHtml(p.when) + '</div>' +
       '<div class="count">' + p.count + '<small>' + (p.count === 1 ? 'prospect' : 'prospects') + '</small></div>' +
       '<div class="status">' + escHtml(p.how) + '</div>' +
-      '<div class="status agent">Agent: ' + escHtml(p.agent) + (p.agent !== lead.name ? ' (routed by language)' : '') + '</div></div>').join('') + '</div>' +
+      '<div class="status agent">Agent: ' + escHtml(p.agent) + (p.agent !== lead.name ? ' (routed by language)' : '') + '</div>' +
+      libraryBlock(p.library) + '</div>').join('') + '</div>' +
     navBar('Next: Launch the campaigns →', 'btnColdBatchNext');
   document.getElementById('btnColdBatchNext').onclick = nextStep;
 }

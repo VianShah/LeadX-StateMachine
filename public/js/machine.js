@@ -62,7 +62,7 @@ function renderLaunchCard(data){
   const cold = data.mode === 'cold_sales';
   const rows = cold
     ? b.batches.map(p =>
-      '<div class="camp-row"><div class="name">' + bucketChip(p.bucket) + ' ' + escHtml(p.language) + ' — ' + escHtml(p.when) + '</div>' +
+      '<div class="camp-row"><div class="name">' + bucketChip(p.bucket) + ' ' + escHtml(p.language) + (p.callLanguage !== p.language ? ' <span class="dim">(in ' + escHtml(p.callLanguage) + ')</span>' : '') + ' — ' + escHtml(p.when) + '</div>' +
       '<div class="meta">' + p.count + (p.count === 1 ? ' prospect' : ' prospects') + ' · ' + escHtml(p.agent) + '</div>' +
       '<span class="status-pill ready">Ready</span></div>')
     : b.batches.map(p =>

@@ -8,6 +8,7 @@ const { generateLeads } = require('./leads');
 const pipeline = require('./pipeline');
 const { slidesFor } = require('./fulfilment');
 const cold = require('./cold');
+const agentLibrary = require('./agentLibrary');
 const sm = require('./stateMachine');
 
 const RUN_TTL_MS = 60 * 60 * 1000;
@@ -140,7 +141,8 @@ function launchRun(run) {
 }
 
 function pipelineView(run) {
-  return { ...run.pipeline, mode: run.mode, fulfilment: { slides: slidesFor(run.mode) } };
+  const batching = { ...run.pipeline.batching, batches: agentLibrary.decorateBatches(run.pipeline.batching.batches, run.mode) };
+  return { ...run.pipeline, batching, mode: run.mode, fulfilment: { slides: slidesFor(run.mode) } };
 }
 
 function pump(run) {

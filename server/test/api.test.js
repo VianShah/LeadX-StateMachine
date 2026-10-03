@@ -61,7 +61,13 @@ test('GET /runs/:id/pipeline returns every stage, consistent with the run', asyn
   assert.equal(p.batching.batches.reduce((n, b) => n + b.count, 0), 16);
   assert.equal(p.fulfilment.slides.length, 4);
   // Vijay speaks Hindi/Marathi only: a batch is a voice match iff its language is one of those.
-  for (const b of p.batching.batches) assert.equal(b.voiceMatch, ['Hindi', 'Marathi'].includes(b.language));
+  for (const b of p.batching.batches) {
+    assert.equal(b.voiceMatch, ['Hindi', 'Marathi'].includes(b.language));
+    assert.equal(b.library.language, b.language); // region-wise library picks on every batch
+  }
+  const lib = await (await fetch(`${base}/agent-library`)).json();
+  assert.equal(lib.agents.length, 48);
+  assert.ok(lib.agents.every((a) => ['Cross-selling', 'Cold sales'].includes(a.service)));
 });
 
 test('cold sales: sample run, upload, phone privacy, and a list with nothing callable', async () => {
@@ -77,6 +83,10 @@ test('cold sales: sample run, upload, phone privacy, and a list with nothing cal
   assert.ok(p.intake.excludedCount > 0);
   assert.equal(p.contact.rows.length, run.leads.length);
   assert.match(p.fulfilment.slides[1].fix, /consent/);
+  // Cold campaigns are grouped by the prospect's own language; a Tamil campaign
+  // called in English still gets Tamil voices recommended from the library.
+  const bridged = p.batching.batches.find((b) => b.callLanguage !== b.language && b.language === 'Tamil');
+  if (bridged) assert.ok(bridged.library.agents.every((a) => a.languages.includes('Tamil')));
 
   const csv = 'Name,Phone,CIBIL\nAsha,9876543210,742\nRavi,9123456789,701\nBad,123,700\n';
   const up = await fetch(`${base}/runs/upload?filename=list.csv&voiceId=ria&name=U`, { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: csv });

@@ -4,6 +4,7 @@ const sm = require('../lib/stateMachine');
 const runner = require('../lib/runner');
 const config = require('../config');
 const cold = require('../lib/cold');
+const agentLibrary = require('../lib/agentLibrary');
 const { parseList, toCsv } = require('../lib/listParser');
 
 const router = express.Router();
@@ -16,6 +17,9 @@ router.get('/voices', (req, res) => {
     meta: v.meta, languages: v.languages, sample: v.sampleText, sampleAudio: v.sampleAudio, active: true,
   })));
 });
+
+// The Sales voice-agent library (from the Kollect agent catalog), for browsing by language / region.
+router.get('/agent-library', (req, res) => res.json(agentLibrary.listing()));
 
 // The machine definition — the UI renders states/edges from this.
 router.get('/machine', (req, res) => res.json(sm.definition()));

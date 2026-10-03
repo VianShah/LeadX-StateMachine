@@ -1,0 +1,1318 @@
+[
+  {
+    "id": "predixion-maya",
+    "name": "Maya",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Product pitch",
+    "personaTone": "Friendly",
+    "description": "Friendly cold-sales voice for credit-card outreach. Qualifies interest in a couple of minutes and books a callback when the prospect is busy.",
+    "languages": [
+      "Hindi",
+      "Hinglish",
+      "Gujarati"
+    ],
+    "rating": 4.5,
+    "status": "Live",
+    "real": true,
+    "provider": null,
+    "minutesSpoken": 3240,
+    "performance": {
+      "latencyMs": 608,
+      "wordsPerMin": 150,
+      "qcScore": 90.5
+    }
+  },
+  {
+    "id": "agent-100",
+    "name": "Ketan",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Application follow-up",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that follows up on an application the customer started for Credit Cards & Personal Loan.",
+    "languages": [
+      "Hindi",
+      "Punjabi",
+      "Gujarati"
+    ],
+    "rating": 4.1,
+    "status": "Live",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 11660,
+    "performance": {
+      "latencyMs": 595,
+      "wordsPerMin": 152,
+      "qcScore": 96.4
+    }
+  },
+  {
+    "id": "agent-140",
+    "name": "Mansi K.",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that qualifies a new lead’s interest and eligibility for Credit Cards & Personal Loan.",
+    "languages": [
+      "Marathi",
+      "Gujarati"
+    ],
+    "rating": 4,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1492,
+    "performance": {
+      "latencyMs": 711,
+      "wordsPerMin": 132,
+      "qcScore": 95.3
+    }
+  },
+  {
+    "id": "agent-116",
+    "name": "Sanjana",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Pre-approved offer pitch",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that pitches a pre-approved offer to an existing customer for Personal Loan.",
+    "languages": [
+      "Hindi",
+      "Kannada"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 29,
+    "performance": {
+      "latencyMs": 557,
+      "wordsPerMin": 152,
+      "qcScore": 93.9
+    }
+  },
+  {
+    "id": "agent-125",
+    "name": "Kiran",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that books a callback with a prospect who is busy for Credit Cards & Personal Loan.",
+    "languages": [
+      "Punjabi",
+      "Hinglish"
+    ],
+    "rating": 4,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 532,
+    "performance": {
+      "latencyMs": 521,
+      "wordsPerMin": 130,
+      "qcScore": 96.2
+    }
+  },
+  {
+    "id": "agent-102",
+    "name": "Shreya",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that offers an existing customer a product upgrade for Credit Cards & Personal Loan.",
+    "languages": [
+      "Gujarati",
+      "Hinglish",
+      "Tamil"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 9,
+    "performance": {
+      "latencyMs": 642,
+      "wordsPerMin": 154,
+      "qcScore": 93.2
+    }
+  },
+  {
+    "id": "agent-131",
+    "name": "Anushka K.",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that books a callback with a prospect who is busy for Credit Cards & Personal Loan.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": 4.7,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1332,
+    "performance": {
+      "latencyMs": 671,
+      "wordsPerMin": 140,
+      "qcScore": 92.6
+    }
+  },
+  {
+    "id": "agent-101",
+    "name": "Anjali",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Application follow-up",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that follows up on an application the customer started for Credit Cards.",
+    "languages": [
+      "Hinglish"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 18,
+    "performance": {
+      "latencyMs": 785,
+      "wordsPerMin": 147,
+      "qcScore": 96.1
+    }
+  },
+  {
+    "id": "agent-98",
+    "name": "Sarita",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Application follow-up",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that follows up on an application the customer started for Credit Cards & Personal Loan.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 5,
+    "performance": {
+      "latencyMs": 630,
+      "wordsPerMin": 150,
+      "qcScore": 98.8
+    }
+  },
+  {
+    "id": "agent-107",
+    "name": "Swati",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that offers an existing customer a product upgrade for Personal Loan.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": 4.2,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1503,
+    "performance": {
+      "latencyMs": 847,
+      "wordsPerMin": 152,
+      "qcScore": 93.4
+    }
+  },
+  {
+    "id": "agent-113",
+    "name": "Jyoti",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that offers an existing customer a product upgrade for Credit Cards & Personal Loan.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": 4.8,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1003,
+    "performance": {
+      "latencyMs": 549,
+      "wordsPerMin": 137,
+      "qcScore": 96.3
+    }
+  },
+  {
+    "id": "agent-99",
+    "name": "Tushar",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that offers an existing customer a product upgrade for Personal Loan & Credit Cards.",
+    "languages": [
+      "Hindi",
+      "Kannada",
+      "Gujarati"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 39,
+    "performance": {
+      "latencyMs": 615,
+      "wordsPerMin": 130,
+      "qcScore": 97.5
+    }
+  },
+  {
+    "id": "agent-136",
+    "name": "Amit K.",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that qualifies a new lead’s interest and eligibility for Credit Cards.",
+    "languages": [
+      "Hinglish",
+      "Tamil"
+    ],
+    "rating": 3.8,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 541,
+    "performance": {
+      "latencyMs": 841,
+      "wordsPerMin": 156,
+      "qcScore": 93.7
+    }
+  },
+  {
+    "id": "agent-121",
+    "name": "Uma",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that qualifies a new lead’s interest and eligibility for Personal Loan & Credit Cards.",
+    "languages": [
+      "Hinglish"
+    ],
+    "rating": 3.7,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 708,
+    "performance": {
+      "latencyMs": 590,
+      "wordsPerMin": 160,
+      "qcScore": 96.8
+    }
+  },
+  {
+    "id": "agent-106",
+    "name": "Parth",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Application follow-up",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that follows up on an application the customer started for Credit Cards.",
+    "languages": [
+      "Hindi",
+      "Punjabi",
+      "Marathi"
+    ],
+    "rating": 4.4,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1328,
+    "performance": {
+      "latencyMs": 780,
+      "wordsPerMin": 144,
+      "qcScore": 91.6
+    }
+  },
+  {
+    "id": "agent-104",
+    "name": "Ishaan",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Application follow-up",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that follows up on an application the customer started for Credit Cards & Personal Loan.",
+    "languages": [
+      "Kannada",
+      "Gujarati"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 18,
+    "performance": {
+      "latencyMs": 565,
+      "wordsPerMin": 155,
+      "qcScore": 94.5
+    }
+  },
+  {
+    "id": "agent-122",
+    "name": "Nandini",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that qualifies a new lead’s interest and eligibility for Credit Cards & Personal Loan.",
+    "languages": [
+      "Hindi",
+      "Kannada",
+      "Tamil"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 33,
+    "performance": {
+      "latencyMs": 966,
+      "wordsPerMin": 149,
+      "qcScore": 97.9
+    }
+  },
+  {
+    "id": "agent-129",
+    "name": "Farhan",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that qualifies a new lead’s interest and eligibility for Personal Loan & Credit Cards.",
+    "languages": [
+      "Telugu",
+      "Hindi"
+    ],
+    "rating": 3.7,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 915,
+    "performance": {
+      "latencyMs": 651,
+      "wordsPerMin": 141,
+      "qcScore": 94.9
+    }
+  },
+  {
+    "id": "agent-139",
+    "name": "Pallavi K.",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that books a callback with a prospect who is busy for Credit Cards.",
+    "languages": [
+      "Gujarati",
+      "Hindi",
+      "Telugu"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 5,
+    "performance": {
+      "latencyMs": 555,
+      "wordsPerMin": 146,
+      "qcScore": 99.9
+    }
+  },
+  {
+    "id": "agent-133",
+    "name": "Kavya K.",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that qualifies a new lead’s interest and eligibility for Personal Loan & Credit Cards.",
+    "languages": [
+      "Tamil",
+      "Hindi"
+    ],
+    "rating": 4.6,
+    "status": "Live",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 9216,
+    "performance": {
+      "latencyMs": 530,
+      "wordsPerMin": 156,
+      "qcScore": 97.1
+    }
+  },
+  {
+    "id": "agent-138",
+    "name": "Deepak K.",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Product pitch",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that pitches the product to a new prospect for Personal Loan.",
+    "languages": [
+      "Hinglish"
+    ],
+    "rating": 4.8,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1027,
+    "performance": {
+      "latencyMs": 564,
+      "wordsPerMin": 160,
+      "qcScore": 91.5
+    }
+  },
+  {
+    "id": "agent-126",
+    "name": "Karan",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that books a callback with a prospect who is busy for Personal Loan.",
+    "languages": [
+      "Hindi",
+      "Telugu",
+      "Punjabi"
+    ],
+    "rating": 3.5,
+    "status": "Live",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 5750,
+    "performance": {
+      "latencyMs": 969,
+      "wordsPerMin": 146,
+      "qcScore": 94.6
+    }
+  },
+  {
+    "id": "agent-96",
+    "name": "Divya",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Pre-approved offer pitch",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that pitches a pre-approved offer to an existing customer for Credit Cards & Personal Loan.",
+    "languages": [
+      "Hinglish",
+      "Kannada",
+      "Marathi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 24,
+    "performance": {
+      "latencyMs": 780,
+      "wordsPerMin": 139,
+      "qcScore": 91.9
+    }
+  },
+  {
+    "id": "agent-123",
+    "name": "Yogesh",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that books a callback with a prospect who is busy for Credit Cards.",
+    "languages": [
+      "Hinglish"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 15,
+    "performance": {
+      "latencyMs": 676,
+      "wordsPerMin": 142,
+      "qcScore": 91.4
+    }
+  },
+  {
+    "id": "agent-134",
+    "name": "Arjun K.",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that qualifies a new lead’s interest and eligibility for Personal Loan.",
+    "languages": [
+      "Kannada",
+      "Hinglish"
+    ],
+    "rating": 4.1,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 997,
+    "performance": {
+      "latencyMs": 532,
+      "wordsPerMin": 148,
+      "qcScore": 97.6
+    },
+    "bestRegion": "Karnataka"
+  },
+  {
+    "id": "agent-118",
+    "name": "Yashika",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that books a callback with a prospect who is busy for Personal Loan.",
+    "languages": [
+      "Hindi",
+      "Punjabi"
+    ],
+    "rating": 4.4,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1270,
+    "performance": {
+      "latencyMs": 762,
+      "wordsPerMin": 159,
+      "qcScore": 99.8
+    },
+    "bestRegion": "Hindi belt"
+  },
+  {
+    "id": "agent-120",
+    "name": "Yash",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that books a callback with a prospect who is busy for Credit Cards.",
+    "languages": [
+      "Hindi",
+      "Tamil",
+      "Marathi"
+    ],
+    "rating": 4,
+    "status": "Live",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 4459,
+    "performance": {
+      "latencyMs": 688,
+      "wordsPerMin": 134,
+      "qcScore": 90.9
+    }
+  },
+  {
+    "id": "agent-128",
+    "name": "Dev",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Product pitch",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that pitches the product to a new prospect for Credit Cards.",
+    "languages": [
+      "Punjabi",
+      "Kannada",
+      "Hindi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 44,
+    "performance": {
+      "latencyMs": 697,
+      "wordsPerMin": 157,
+      "qcScore": 97.3
+    }
+  },
+  {
+    "id": "agent-105",
+    "name": "Pranav",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Application follow-up",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that follows up on an application the customer started for Personal Loan.",
+    "languages": [
+      "Hinglish"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 51,
+    "performance": {
+      "latencyMs": 905,
+      "wordsPerMin": 138,
+      "qcScore": 94.4
+    }
+  },
+  {
+    "id": "agent-137",
+    "name": "Manisha K.",
+    "gender": "Female",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that books a callback with a prospect who is busy for Credit Cards.",
+    "languages": [
+      "Kannada",
+      "Punjabi"
+    ],
+    "rating": 4.8,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 490,
+    "performance": {
+      "latencyMs": 740,
+      "wordsPerMin": 152,
+      "qcScore": 93.3
+    }
+  },
+  {
+    "id": "agent-132",
+    "name": "Chetan K.",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that qualifies a new lead’s interest and eligibility for Personal Loan & Credit Cards.",
+    "languages": [
+      "Hindi",
+      "Punjabi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 57,
+    "performance": {
+      "latencyMs": 558,
+      "wordsPerMin": 139,
+      "qcScore": 90.3
+    }
+  },
+  {
+    "id": "agent-127",
+    "name": "Ajay",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that qualifies a new lead’s interest and eligibility for Personal Loan & Credit Cards.",
+    "languages": [
+      "Hinglish"
+    ],
+    "rating": 4.6,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 677,
+    "performance": {
+      "latencyMs": 873,
+      "wordsPerMin": 151,
+      "qcScore": 98.8
+    }
+  },
+  {
+    "id": "agent-97",
+    "name": "Neelam",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that offers an existing customer a product upgrade for Personal Loan & Credit Cards.",
+    "languages": [
+      "Tamil",
+      "Gujarati",
+      "Hinglish"
+    ],
+    "rating": 4.5,
+    "status": "Live",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 11463,
+    "performance": {
+      "latencyMs": 677,
+      "wordsPerMin": 168,
+      "qcScore": 91.5
+    }
+  },
+  {
+    "id": "agent-95",
+    "name": "Tarun",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards",
+      "Personal Loan"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that offers an existing customer a product upgrade for Credit Cards & Personal Loan.",
+    "languages": [
+      "Hindi",
+      "Tamil"
+    ],
+    "rating": 4.8,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 632,
+    "performance": {
+      "latencyMs": 687,
+      "wordsPerMin": 168,
+      "qcScore": 94.7
+    }
+  },
+  {
+    "id": "agent-114",
+    "name": "Vinay",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Pre-approved offer pitch",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that pitches a pre-approved offer to an existing customer for Personal Loan.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 33,
+    "performance": {
+      "latencyMs": 891,
+      "wordsPerMin": 158,
+      "qcScore": 93.2
+    }
+  },
+  {
+    "id": "agent-112",
+    "name": "Dhara",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Application follow-up",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that follows up on an application the customer started for Personal Loan.",
+    "languages": [
+      "Marathi",
+      "Hindi",
+      "Punjabi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1,
+    "performance": {
+      "latencyMs": 545,
+      "wordsPerMin": 141,
+      "qcScore": 97.5
+    }
+  },
+  {
+    "id": "agent-110",
+    "name": "Sakshi",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that offers an existing customer a product upgrade for Personal Loan.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 22,
+    "performance": {
+      "latencyMs": 971,
+      "wordsPerMin": 153,
+      "qcScore": 90.7
+    }
+  },
+  {
+    "id": "agent-135",
+    "name": "Lokesh K.",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Product pitch",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that pitches the product to a new prospect for Credit Cards.",
+    "languages": [
+      "Hindi",
+      "Punjabi"
+    ],
+    "rating": 4.5,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 872,
+    "performance": {
+      "latencyMs": 855,
+      "wordsPerMin": 167,
+      "qcScore": 95
+    }
+  },
+  {
+    "id": "agent-103",
+    "name": "Harsh",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that offers an existing customer a product upgrade for Credit Cards.",
+    "languages": [
+      "Hinglish",
+      "Tamil",
+      "Telugu"
+    ],
+    "rating": 4.1,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1186,
+    "performance": {
+      "latencyMs": 885,
+      "wordsPerMin": 161,
+      "qcScore": 91.8
+    }
+  },
+  {
+    "id": "agent-108",
+    "name": "Varun",
+    "gender": "Male",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Pre-approved offer pitch",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that pitches a pre-approved offer to an existing customer for Credit Cards.",
+    "languages": [
+      "Tamil",
+      "Kannada"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 2,
+    "performance": {
+      "latencyMs": 659,
+      "wordsPerMin": 164,
+      "qcScore": 93.5
+    }
+  },
+  {
+    "id": "agent-119",
+    "name": "Uday",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Lead qualification",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that qualifies a new lead’s interest and eligibility for Credit Cards.",
+    "languages": [
+      "Telugu"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 22,
+    "performance": {
+      "latencyMs": 759,
+      "wordsPerMin": 155,
+      "qcScore": 92.8
+    }
+  },
+  {
+    "id": "agent-109",
+    "name": "Lakshmi",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that offers an existing customer a product upgrade for Personal Loan & Credit Cards.",
+    "languages": [
+      "Telugu"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 49,
+    "performance": {
+      "latencyMs": 864,
+      "wordsPerMin": 132,
+      "qcScore": 97.5
+    }
+  },
+  {
+    "id": "agent-117",
+    "name": "Padma",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Pre-approved offer pitch",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that pitches a pre-approved offer to an existing customer for Personal Loan & Credit Cards.",
+    "languages": [
+      "Hindi",
+      "Gujarati",
+      "Marathi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 57,
+    "performance": {
+      "latencyMs": 702,
+      "wordsPerMin": 166,
+      "qcScore": 98.5
+    }
+  },
+  {
+    "id": "agent-111",
+    "name": "Harini",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that offers an existing customer a product upgrade for Credit Cards.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 59,
+    "performance": {
+      "latencyMs": 662,
+      "wordsPerMin": 132,
+      "qcScore": 91.1
+    }
+  },
+  {
+    "id": "agent-94",
+    "name": "Revathi",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Pre-approved offer pitch",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that pitches a pre-approved offer to an existing customer for Credit Cards.",
+    "languages": [
+      "Hinglish",
+      "Tamil"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 8,
+    "performance": {
+      "latencyMs": 830,
+      "wordsPerMin": 137,
+      "qcScore": 99.3
+    }
+  },
+  {
+    "id": "agent-130",
+    "name": "Rohan",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan",
+      "Credit Cards"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Professional",
+    "description": "Clear, professional voice that books a callback with a prospect who is busy for Personal Loan & Credit Cards.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": 4.2,
+    "status": "Live",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 6610,
+    "performance": {
+      "latencyMs": 853,
+      "wordsPerMin": 151,
+      "qcScore": 97.3
+    }
+  },
+  {
+    "id": "agent-115",
+    "name": "Bhavna",
+    "gender": "Female",
+    "service": "Cross-selling",
+    "line": "Sales",
+    "products": [
+      "Credit Cards"
+    ],
+    "objective": "Product upgrade",
+    "personaTone": "Empathetic",
+    "description": "Empathetic, patient voice that offers an existing customer a product upgrade for Credit Cards.",
+    "languages": [
+      "Gujarati"
+    ],
+    "rating": null,
+    "status": "Dev",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 59,
+    "performance": {
+      "latencyMs": 807,
+      "wordsPerMin": 150,
+      "qcScore": 97.6
+    }
+  },
+  {
+    "id": "agent-124",
+    "name": "Bharat",
+    "gender": "Male",
+    "service": "Cold sales",
+    "line": "Sales",
+    "products": [
+      "Personal Loan"
+    ],
+    "objective": "Callback booking",
+    "personaTone": "Friendly",
+    "description": "Friendly, conversational voice that books a callback with a prospect who is busy for Personal Loan.",
+    "languages": [
+      "Hindi"
+    ],
+    "rating": 4.5,
+    "status": "Demo",
+    "real": false,
+    "provider": null,
+    "minutesSpoken": 1293,
+    "performance": {
+      "latencyMs": 536,
+      "wordsPerMin": 131,
+      "qcScore": 93.1
+    }
+  }
+]

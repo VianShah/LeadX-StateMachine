@@ -244,8 +244,10 @@ function pipelineView(leads, excluded, intake, leadVoice, voices) {
   const voiceName = (id) => (voices.find((v) => v.id === id) || leadVoice).name;
   const groups = new Map();
   for (const l of leads) {
-    const key = `${l.bucket}|${l.callLanguage}|${l.plan.when}`;
-    if (!groups.has(key)) groups.set(key, { key, bucket: l.bucket, language: l.callLanguage, when: l.plan.when, how: l.plan.how, agent: voiceName(l.voiceId), count: 0 });
+    // Grouped by the prospect's own language (not the bridge language), so a
+    // campaign of Tamil speakers stays one campaign even while it is called in English.
+    const key = `${l.bucket}|${l.language}|${l.plan.when}`;
+    if (!groups.has(key)) groups.set(key, { key, bucket: l.bucket, language: l.language, callLanguage: l.callLanguage, when: l.plan.when, how: l.plan.how, agent: voiceName(l.voiceId), count: 0 });
     groups.get(key).count += 1;
   }
   const order = { hot: 0, warm: 1, cold: 2 };
