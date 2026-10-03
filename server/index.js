@@ -6,7 +6,11 @@ const api = require('./routes/api');
 const app = express();
 app.use(express.json());
 app.use('/api', api);
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// no-cache = browsers may keep a copy but must re-check it on every load, so a
+// pulled update shows up on a normal refresh instead of serving stale JS/CSS.
+app.use(express.static(path.join(__dirname, '..', 'public'), {
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
+}));
 
 // Body-parser errors (oversized upload, malformed JSON) as JSON, not Express's HTML page.
 app.use((err, req, res, next) => {
