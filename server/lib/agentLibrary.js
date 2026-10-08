@@ -79,4 +79,12 @@ function listing() {
   };
 }
 
-module.exports = { recommend, decorateBatches, listing, REGION_FOR_LANGUAGE };
+/** A library agent as a run voice: speaks its own languages (Hinglish voices also cover English) and keeps the run's call profile. */
+function asVoice(agentId, base) {
+  const a = AGENTS.find((x) => x.id === agentId);
+  if (!a) return null;
+  const languages = [...new Set([...a.languages, ...(a.languages.includes('Hinglish') ? ['English'] : [])])];
+  return { ...base, id: `lib:${a.id}`, name: a.name, lang: a.languages.join(' / '), meta: `${a.languages.join('/')} · ${a.personaTone} · ${a.gender}`, languages };
+}
+
+module.exports = { asVoice, recommend, decorateBatches, listing, REGION_FOR_LANGUAGE };

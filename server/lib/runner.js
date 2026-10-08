@@ -129,10 +129,27 @@ function createRun({ name, voiceId, leadCount, mode = 'cross_sell', rows }) {
   return run;
 }
 
+// Library voices the visitor picked on the batching step. Mirrors the UI rule:
+// for each lead, the latest pick among its batch's recommended voices (the ones
+// agentLibrary.recommend lists on the batch card) takes the call.
+function applyLibraryPicks(run, picks) {
+  if (!Array.isArray(picks) || !picks.length) return;
+  const cache = new Map();
+  for (const rt of run.leads.values()) {
+    const key = `${rt.lead.language}|${rt.lead.need}`;
+    if (!cache.has(key)) cache.set(key, new Set(agentLibrary.recommend({ language: rt.lead.language, mode: run.mode, need: rt.lead.need }).agents.map((a) => a.id)));
+    const ids = cache.get(key);
+    const pick = [...picks].reverse().find((id) => typeof id === 'string' && ids.has(id));
+    const voice = pick && agentLibrary.asVoice(pick, rt.voice);
+    if (voice) rt.voice = voice;
+  }
+}
+
 // Dispatch starts only when the visitor launches the campaign from the
 // Execution tab, after walking through Data Intelligence and Strategy.
-function launchRun(run) {
+function launchRun(run, libraryPicks) {
   if (run.status !== 'ready') return false;
+  applyLibraryPicks(run, libraryPicks);
   run.status = 'running';
   emit(run, 'run_started', { counts: run.counts, summary: summarize(run) });
   // Next tick so the client's SSE subscription can land before the first transition.

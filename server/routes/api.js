@@ -71,7 +71,7 @@ router.get('/runs/:id/pipeline', (req, res) => {
 router.post('/runs/:id/launch', (req, res) => {
   const run = runner.getRun(req.params.id);
   if (!run) return res.status(404).json({ error: 'run_not_found' });
-  if (!runner.launchRun(run)) return res.status(409).json({ error: 'already_launched' });
+  if (!runner.launchRun(run, (req.body || {}).libraryPicks)) return res.status(409).json({ error: 'already_launched' });
   res.json(runner.snapshot(run));
 });
 

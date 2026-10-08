@@ -7,6 +7,20 @@ const libraryAgentsById = {};  // every agent we've rendered, for the profile vi
 const initials = (name) => (name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
 const statusDot = (s) => '<span class="lib-dot ' + escHtml(String(s).toLowerCase()) + '" title="' + escHtml(s) + '"></span>';
 
+// Library agents the visitor has picked, oldest first. One pick serves every
+// batch/campaign whose recommended voices include that agent; for a given
+// batch the most recent pick among its voices wins. The server applies the
+// same rule at launch (server/lib/runner.js), so what you see is what dials.
+const libPicks = [];
+function pickedFor(lib){
+  if(!lib) return null;
+  for(let i = libPicks.length - 1; i >= 0; i--){
+    const a = lib.agents.find(x => x.id === libPicks[i]);
+    if(a) return a;
+  }
+  return null;
+}
+
 function remember(agents){ agents.forEach(a => { libraryAgentsById[a.id] = a; }); }
 
 /** The "From the agent library" block on a batch card. `lib` comes from the server per batch. */
@@ -14,22 +28,35 @@ function libraryBlock(lib){
   if(!lib) return '';
   remember(lib.agents);
   const more = lib.available - lib.agents.length;
+  const picked = pickedFor(lib);
   return '<div class="lib-block">' +
     '<div class="lib-head"><span>Agent library' + (lib.region ? ' · ' + escHtml(lib.region) : '') + '</span>' +
       (lib.available ? '<button type="button" class="lib-more" data-lang="' + escHtml(lib.language) + '">' + lib.available + ' voices' + (more > 0 ? ' →' : '') + '</button>' : '') + '</div>' +
     (lib.agents.length
-      ? '<div class="lib-chips">' + lib.agents.map(a =>
-          '<button type="button" class="lib-chip" data-agent="' + escHtml(a.id) + '" title="' + escHtml(a.reasons.join(' · ')) + '">' +
-          '<span class="lib-av">' + escHtml(initials(a.name)) + '</span><span class="lib-nm">' + escHtml(a.name) + '</span>' + statusDot(a.status) + '</button>').join('') + '</div>'
+      ? '<div class="lib-chips">' + lib.agents.map(a => {
+          const sel = !!(picked && picked.id === a.id);
+          return '<span class="lib-pick"><button type="button" class="lib-chip' + (sel ? ' sel' : '') + '" data-pick="' + escHtml(a.id) + '" aria-pressed="' + sel + '" title="Select ' + escHtml(a.name) + ' for this batch — ' + escHtml(a.reasons.join(' · ')) + '">' +
+            '<span class="lib-av">' + escHtml(initials(a.name)) + '</span><span class="lib-nm">' + escHtml(a.name) + '</span>' + statusDot(a.status) + '</button>' +
+            '<button type="button" class="lib-info" data-agent="' + escHtml(a.id) + '" aria-label="Profile of ' + escHtml(a.name) + '" title="View profile">ⓘ</button></span>';
+        }).join('') + '</div>'
       : '') +
+    (picked ? '<div class="lib-picked">' + escHtml(picked.name) + ' will take this batch</div>' : '') +
     (lib.note ? '<div class="lib-note">' + escHtml(lib.note) + '</div>' : '') +
   '</div>';
 }
 
 // Delegated: chips and "N voices" links work wherever a library block is rendered.
 document.addEventListener('click', (e) => {
+  const info = e.target.closest('.lib-info');
+  if(info){ openLibrary({ agentId: info.dataset.agent }); return; }
   const chip = e.target.closest('.lib-chip');
-  if(chip){ openLibrary({ agentId: chip.dataset.agent }); return; }
+  if(chip){
+    const id = chip.dataset.pick, at = libPicks.indexOf(id);
+    if(at >= 0) libPicks.splice(at, 1);
+    if(!chip.classList.contains('sel')) libPicks.push(id);
+    renderPipeline();
+    return;
+  }
   const more = e.target.closest('.lib-more, [data-open-library]');
   if(more){ openLibrary({ language: more.dataset.lang || '' }); }
 });

@@ -9,20 +9,19 @@
 // at a time with a single fix that covers the whole app at once.
 (function () {
   const REF_WIDTH = 1440;
-  const REF_HEIGHT = 900;
+  const MAX_SCALE = 1.7;
   // Below this, the app would rather show slightly less margin around it
   // (letterboxing) than shrink text to the point of being unreadable — the
   // real devices this needs to support (iPad, laptops) don't get anywhere
   // near this floor; it only matters for a genuinely tiny window.
-  const MIN_SCALE = 0.5;
+  const MIN_SCALE = 0.6;
 
   function applyFit() {
     const app = document.getElementById('app');
-    if (!app) return;
-    const scale = Math.max(
-      MIN_SCALE,
-      Math.min(window.innerWidth / REF_WIDTH, window.innerHeight / REF_HEIGHT)
-    );
+    if (!app || !window.innerWidth || !window.innerHeight) return;
+    const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, window.innerWidth / REF_WIDTH));
+    app.style.width = window.innerWidth / scale + 'px';
+    app.style.height = window.innerHeight / scale + 'px';
     app.style.transform = `translate(-50%, -50%) scale(${scale})`;
   }
 

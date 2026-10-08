@@ -218,7 +218,7 @@ function renderColdBatching(panel){
       '<div class="lang">' + bucketChip(p.bucket) + ' ' + escHtml(p.language) + (p.callLanguage !== p.language ? ' · called in ' + escHtml(p.callLanguage) : '') + '</div><div class="name">' + escHtml(p.when) + '</div>' +
       '<div class="count">' + p.count + '<small>' + (p.count === 1 ? 'prospect' : 'prospects') + '</small></div>' +
       '<div class="status">' + escHtml(p.how) + '</div>' +
-      '<div class="status agent">Agent: ' + escHtml(p.agent) + (p.agent !== lead.name ? ' (routed by language)' : '') + '</div>' +
+      '<div class="status agent">Agent: ' + (pickedFor(p.library) ? escHtml(pickedFor(p.library).name) + ' (picked from library)' : escHtml(p.agent) + (p.agent !== lead.name ? ' (routed by language)' : '')) + '</div>' +
       libraryBlock(p.library) + '</div>').join('') + '</div>' +
     navBar('Next: Launch the campaigns →', 'btnColdBatchNext');
   document.getElementById('btnColdBatchNext').onclick = nextStep;

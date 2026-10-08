@@ -70,12 +70,11 @@ function renderLaunchCard(data){
       '<div class="meta">' + p.count + (p.count === 1 ? ' lead' : ' leads') + ' · Voice</div>' +
       '<span class="status-pill ready">Ready</span></div>');
   document.getElementById('xLaunch').innerHTML =
-    '<h2>Run &amp; measure</h2>' +
+    '<div class="step-head"><h2>Run &amp; measure</h2><div class="x-launch-actions"><button class="btn-primary x-launch-btn" id="btnLaunch" type="button">Launch campaign &amp; measure intent</button><div id="launchErr" class="launch-err"></div></div></div>' +
     (cold
       ? '<div class="desc">Launch the ' + b.batches.length + ' cold campaigns. Warm and Cold prospects get their intro message first; every call runs in its time slot and language, and each outcome picks that prospect&#8217;s next best action.</div>'
       : '<div class="desc">Launch each persona batch as a voice campaign with <b>' + escHtml(voice.name) + '</b>. Once it runs, every call outcome is captured &mdash; not just the ones that convert &mdash; and each one picks that lead&#8217;s next best action.</div>') +
     '<div class="camp-list">' + rows.join('') + '</div>' +
-    '<div class="x-launch-actions"><button class="btn-primary x-launch-btn" id="btnLaunch" type="button">Launch campaign &amp; measure intent</button><div id="launchErr" class="launch-err"></div></div>' +
     '<div class="footnote">Scoring, sentiment and outcomes here are simulated for this walkthrough. Production runs on the full Account Aggregator + CRM + CIBIL signal set described in Data Intelligence.</div>';
   document.getElementById('btnLaunch').onclick = launchCampaign;
 }
@@ -84,7 +83,7 @@ async function launchCampaign(){
   const btn = document.getElementById('btnLaunch');
   btn.disabled = true;
   try {
-    const res = await fetch('/api/runs/' + state.run.id + '/launch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    const res = await fetch('/api/runs/' + state.run.id + '/launch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ libraryPicks: libPicks }) });
     if(!res.ok && res.status !== 409) throw new Error('launch ' + res.status);
   } catch(e) {
     btn.disabled = false;

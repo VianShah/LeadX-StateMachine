@@ -160,6 +160,18 @@ function renderPipeline(){
   ({ fetch: renderFetch, process: renderProcess, intent: renderIntent, eligibility: renderEligibility, pitch: renderPitch, batching: renderBatching,
      upload: renderUpload, validate: renderValidate, fit: renderFit, buckets: renderColdBuckets, contact: renderContact, coldBatch: renderColdBatching, // cold_sales.js
   })[k](panel);
+  hoistNav(panel);
+}
+
+// Move each step's "Next" button up beside its title so it is always in reach.
+function hoistNav(panel){
+  const h = panel.querySelector(':scope > h2');
+  const navs = [...panel.querySelectorAll(':scope > .nav-btns, :scope > #fetchNav, :scope > #procNav')];
+  if(!h || !navs.length) return;
+  const head = document.createElement('div');
+  head.className = 'step-head';
+  h.before(head);
+  head.append(h, ...navs);
 }
 
 const navBar = (label, id) => '<div class="nav-btns"><span></span><button class="btn-next" id="' + id + '" type="button">' + label + '</button></div>';
@@ -304,12 +316,12 @@ function renderBatching(panel){
   const voice = state.run ? state.run.voice : state.voice;
   panel.innerHTML =
     '<h2>Persona batching</h2>' +
-    '<div class="desc">Leads grouped by language + product need, so each batch gets one consistent script and send window. <b>' + escHtml(voice.name) + '</b> speaks the language of <b>' + b.matchedLeads + ' of ' + b.totalLeads + '</b> leads; each batch also shows the best voices for its region from the agent library. ' +
+    '<div class="desc">Leads grouped by language + product need, so each batch gets one consistent script and send window. <b>' + escHtml(voice.name) + '</b> speaks the language of <b>' + b.matchedLeads + ' of ' + b.totalLeads + '</b> leads. Pick any library voice below to take a batch &mdash; a voice you pick is used for every batch that lists it (' + b.batches.filter(p => pickedFor(p.library)).reduce((n, p) => n + p.count, 0) + ' leads covered by picks). ' +
       '<button type="button" class="link-btn" data-open-library>Browse the agent library →</button></div>' +
     '<div class="board step-fill">' + b.batches.map(p =>
-      '<div class="persona' + (p.voiceMatch ? ' match' : '') + '"><div class="lang">' + escHtml(p.language) + '</div><div class="name">' + escHtml(p.need) + '</div>' +
+      '<div class="persona' + (p.voiceMatch || pickedFor(p.library) ? ' match' : '') + '"><div class="lang">' + escHtml(p.language) + '</div><div class="name">' + escHtml(p.need) + '</div>' +
       '<div class="count">' + p.count + '<small>' + (p.count === 1 ? 'lead' : 'leads') + '</small></div>' +
-      '<div class="status">' + (p.voiceMatch ? escHtml(voice.name) + ' speaks this ✓' : 'Different language — lower intent expected') + '</div>' +
+      '<div class="status">' + (pickedFor(p.library) ? escHtml(pickedFor(p.library).name) + ' (library) speaks this ✓' : p.voiceMatch ? escHtml(voice.name) + ' speaks this ✓' : 'Different language — lower intent expected') + '</div>' +
       libraryBlock(p.library) + '</div>').join('') + '</div>' +
     navBar('Next: Launch the campaign →', 'btnBatchNext');
   document.getElementById('btnBatchNext').onclick = nextStep;
